@@ -1,19 +1,23 @@
 // ============================================================
-// CONFIGURATION - PRODUCTION GRADE
+// CONFIGURATION
 // ============================================================
 
 const CONFIG = {
     // Supabase Configuration
     SUPABASE_URL: 'https://espezmdpkoixnfchomqb.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVzcGV6bWRwa29peG5mY2hvbXFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MjAxNTU3NjAwMH0.fake',
+    SUPABASE_ANON_KEY: 'sb_publishable_xP8z74zcMuCkj6xlu1bJ3w_Kudqbcu1',
     
     // App Configuration
     APP: {
+        password: 'student123',
+        sessionKey: 'voter_auth_session',
+        appName: 'Villimale Dhaaira Canvassing',
         tableName: 'full_import',
-        pageSize: 1000
+        settingsPassword: 'settings123'
     }
 };
 
 // Make config globally available
 window.CONFIG = CONFIG;
-console.log('✅ Config loaded');
+
+console.log('✅ Config loaded successfully');
