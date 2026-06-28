@@ -6,41 +6,19 @@
     <title>Villimale Dhaaira - Voter Search</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* ============================================
-           PROFESSIONAL SEARCH PAGE
-           ============================================ */
-        :root {
-            --primary: #7C3AED;
-            --primary-dark: #6D28D9;
-            --primary-light: #EDE9FE;
-            --bg-primary: #F8FAFC;
-            --bg-card: #FFFFFF;
-            --text-primary: #1E293B;
-            --text-secondary: #64748B;
-            --text-muted: #94A3B8;
-            --border: #E2E8F0;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 8px 32px rgba(124, 58, 237, 0.12);
-            --radius: 12px;
-            --radius-lg: 16px;
-            --radius-full: 9999px;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-size: 14px;
-            line-height: 1.5;
+            background: #F5F3FF;
+            color: #1E293B;
             min-height: 100vh;
             padding: 24px;
             display: flex;
@@ -48,154 +26,127 @@
             align-items: center;
         }
 
-        /* HEADER */
-        .search-header {
+        .header {
             width: 100%;
             max-width: 720px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 24px;
             padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid #E2E8F0;
         }
 
-        .search-header .brand {
+        .header .brand {
+            font-weight: 700;
+            font-size: 20px;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-weight: 700;
-            font-size: 18px;
-            color: var(--text-primary);
+            color: #1E293B;
         }
 
-        .search-header .brand i {
-            color: var(--primary);
-            font-size: 20px;
+        .header .brand i {
+            color: #7C3AED;
+            font-size: 22px;
         }
 
-        .search-header .brand .sub {
-            font-size: 12px;
-            color: var(--text-muted);
+        .header .brand span {
+            font-size: 13px;
+            color: #94A3B8;
             font-weight: 400;
         }
 
-        .search-header .close-btn {
-            background: none;
-            border: none;
-            font-size: 20px;
-            color: var(--text-muted);
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: var(--radius);
-            transition: all 0.2s ease;
-            font-weight: 500;
-        }
-
-        .search-header .close-btn:hover {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-
-        /* SEARCH BAR */
-        .search-wrapper {
+        .search-box {
             width: 100%;
             max-width: 720px;
             position: relative;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
-        .search-wrapper .search-icon {
+        .search-box input {
+            width: 100%;
+            height: 56px;
+            padding: 0 48px 0 48px;
+            border: 2px solid #E2E8F0;
+            border-radius: 14px;
+            font-size: 16px;
+            background: white;
+            outline: none;
+            transition: 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .search-box input:focus {
+            border-color: #7C3AED;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .search-box input::placeholder {
+            color: #94A3B8;
+        }
+
+        .search-box .icon {
             position: absolute;
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--text-muted);
-            font-size: 16px;
-            pointer-events: none;
+            color: #94A3B8;
+            font-size: 18px;
         }
 
-        .search-wrapper input {
-            width: 100%;
-            height: 56px;
-            padding: 0 50px 0 48px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-lg);
-            font-size: 16px;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            outline: none;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow);
-            font-weight: 400;
-        }
-
-        .search-wrapper input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08), var(--shadow);
-        }
-
-        .search-wrapper input::placeholder {
-            color: var(--text-muted);
-            font-weight: 400;
-        }
-
-        .search-wrapper .clear-btn {
+        .search-box .clear {
             position: absolute;
             right: 16px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--text-muted);
+            color: #94A3B8;
             cursor: pointer;
-            font-size: 18px;
-            padding: 8px;
+            font-size: 20px;
             display: none;
-            transition: all 0.2s ease;
+            padding: 4px;
         }
 
-        .search-wrapper .clear-btn.visible {
+        .search-box .clear.show {
             display: block;
         }
 
-        .search-wrapper .clear-btn:hover {
-            color: var(--text-primary);
+        .search-box .clear:hover {
+            color: #1E293B;
         }
 
-        /* SEARCH STATS */
-        .search-stats {
+        .stats {
             width: 100%;
             max-width: 720px;
             font-size: 13px;
-            color: var(--text-muted);
+            color: #94A3B8;
             padding: 4px 4px 12px 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .search-stats .count {
+        .stats strong {
+            color: #1E293B;
             font-weight: 600;
-            color: var(--text-primary);
         }
 
-        .search-stats .hint {
+        .stats .hint {
             font-size: 12px;
-            color: var(--text-muted);
         }
 
-        .search-stats .hint kbd {
-            background: var(--bg-primary);
+        .stats .hint kbd {
+            background: #F1F5F9;
             padding: 2px 8px;
             border-radius: 4px;
-            border: 1px solid var(--border);
+            border: 1px solid #E2E8F0;
             font-size: 11px;
             font-family: inherit;
         }
 
-        /* RESULTS */
-        .results-container {
+        .results {
             width: 100%;
             max-width: 720px;
             display: flex;
@@ -203,163 +154,170 @@
             gap: 8px;
         }
 
-        .result-item {
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
+        .result {
+            background: white;
+            border-radius: 12px;
             padding: 16px 20px;
-            border: 1px solid var(--border);
-            transition: all 0.2s ease;
+            border: 1px solid #E2E8F0;
             display: flex;
             align-items: center;
             gap: 16px;
-            cursor: pointer;
+            transition: 0.2s;
+            cursor: default;
+            animation: fadeIn 0.3s ease;
         }
 
-        .result-item:hover {
-            border-color: var(--primary);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-1px);
+        .result:hover {
+            border-color: #7C3AED;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.08);
         }
 
-        .result-item:active {
-            transform: scale(0.99);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .result-item .avatar {
+        .result .avatar {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: var(--primary-light);
+            background: #EDE9FE;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            color: var(--primary);
-            flex-shrink: 0;
-            border: 2px solid var(--border);
+            font-size: 17px;
             font-weight: 600;
+            color: #7C3AED;
+            flex-shrink: 0;
             text-transform: uppercase;
+            border: 2px solid #E2E8F0;
         }
 
-        .result-item .avatar img {
+        .result .avatar img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
         }
 
-        .result-item .info {
+        .result .info {
             flex: 1;
             min-width: 0;
         }
 
-        .result-item .name {
+        .result .name {
             font-weight: 600;
             font-size: 15px;
-            color: var(--text-primary);
+            color: #1E293B;
         }
 
-        .result-item .details {
+        .result .detail {
             font-size: 13px;
-            color: var(--text-secondary);
+            color: #64748B;
             display: flex;
             flex-wrap: wrap;
-            gap: 4px 12px;
+            gap: 4px 16px;
             margin-top: 2px;
         }
 
-        .result-item .details .sep {
-            color: var(--border);
-        }
-
-        .result-item .details i {
+        .result .detail i {
             width: 14px;
-            color: var(--primary);
-            margin-right: 2px;
+            color: #7C3AED;
             font-size: 12px;
+            margin-right: 2px;
         }
 
-        .result-item .details .id-badge {
-            background: var(--bg-primary);
-            padding: 1px 10px;
-            border-radius: var(--radius-full);
+        .result .detail .sep {
+            color: #E2E8F0;
+        }
+
+        .result .detail .badge {
+            background: #F1F5F9;
+            padding: 0 10px;
+            border-radius: 20px;
             font-size: 11px;
             font-weight: 500;
-            color: var(--text-secondary);
+            color: #64748B;
         }
 
-        .result-item .action-btn {
+        .result .copy {
             padding: 6px 16px;
             border: none;
-            border-radius: var(--radius);
-            background: var(--primary);
+            border-radius: 8px;
+            background: #7C3AED;
             color: white;
             font-weight: 500;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            white-space: nowrap;
+            transition: 0.2s;
             flex-shrink: 0;
         }
 
-        .result-item .action-btn:hover {
-            background: var(--primary-dark);
+        .result .copy:hover {
+            background: #6D28D9;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
         }
 
-        .result-item .action-btn:active {
+        .result .copy:active {
             transform: scale(0.95);
         }
 
-        /* EMPTY STATE */
-        .empty-state {
+        .empty {
             text-align: center;
             padding: 60px 20px;
-            color: var(--text-muted);
-            background: var(--bg-card);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
+            color: #94A3B8;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
         }
 
-        .empty-state i {
+        .empty i {
             font-size: 48px;
-            color: var(--border);
+            color: #E2E8F0;
             display: block;
             margin-bottom: 16px;
         }
 
-        .empty-state h3 {
+        .empty h3 {
             font-size: 18px;
-            color: var(--text-primary);
+            color: #1E293B;
             margin-bottom: 4px;
             font-weight: 600;
         }
 
-        .empty-state p {
+        .empty p {
             font-size: 14px;
-            color: var(--text-secondary);
+            color: #94A3B8;
         }
 
-        /* LOADING */
-        .loading-spinner {
+        .loading {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
+            padding: 60px 20px;
+            color: #94A3B8;
         }
 
-        .loading-spinner i {
-            font-size: 24px;
+        .loading i {
+            font-size: 28px;
             animation: spin 1s linear infinite;
-            color: var(--primary);
+            color: #7C3AED;
+            display: block;
+            margin-bottom: 12px;
         }
 
         @keyframes spin {
-            from { transform: rotate(0deg); }
+            from { transform: rotate(0); }
             to { transform: rotate(360deg); }
         }
 
-        /* TOAST */
+        .highlight {
+            background: #EDE9FE;
+            color: #6D28D9;
+            padding: 0 3px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
         .toast {
             position: fixed;
             bottom: 30px;
@@ -367,312 +325,251 @@
             transform: translateX(-50%);
             background: #1E1B4B;
             color: white;
-            padding: 10px 24px;
-            border-radius: var(--radius);
+            padding: 12px 24px;
+            border-radius: 10px;
             font-size: 14px;
             font-weight: 500;
             z-index: 999;
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             max-width: 92%;
             text-align: center;
-            animation: toastIn 0.3s ease;
-            border-left: 4px solid var(--primary);
+            animation: slideUp 0.3s ease;
+            border-left: 4px solid #7C3AED;
         }
 
         .toast.success { border-left-color: #22C55E; }
         .toast.error { border-left-color: #EF4444; }
 
-        @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        /* HIGHLIGHT */
-        .highlight {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0 2px;
-            border-radius: 2px;
-            font-weight: 600;
-        }
-
-        /* RESPONSIVE */
         @media (max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-
-            .search-header {
-                margin-bottom: 16px;
-                padding-bottom: 12px;
-            }
-
-            .search-header .brand {
-                font-size: 16px;
-            }
-
-            .search-header .brand .sub {
-                display: none;
-            }
-
-            .search-wrapper input {
-                height: 48px;
-                font-size: 14px;
-                padding: 0 44px 0 42px;
-            }
-
-            .search-stats {
-                font-size: 12px;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
-            }
-
-            .search-stats .hint {
-                display: none;
-            }
-
-            .result-item {
-                padding: 12px 14px;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .result-item .avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
-            }
-
-            .result-item .name {
-                font-size: 14px;
-            }
-
-            .result-item .details {
-                font-size: 12px;
-                gap: 2px 8px;
-            }
-
-            .result-item .details .id-badge {
-                font-size: 10px;
-                padding: 0px 8px;
-            }
-
-            .result-item .action-btn {
-                width: 100%;
-                text-align: center;
-                padding: 8px;
-                margin-top: 2px;
-            }
-
-            .empty-state {
-                padding: 40px 16px;
-            }
-
-            .empty-state i {
-                font-size: 36px;
-            }
-
-            .empty-state h3 {
-                font-size: 16px;
-            }
+            body { padding: 12px; }
+            .header .brand { font-size: 16px; }
+            .header .brand span { display: none; }
+            .search-box input { height: 48px; font-size: 14px; padding: 0 40px 0 40px; }
+            .search-box .icon { font-size: 15px; left: 14px; }
+            .search-box .clear { font-size: 17px; right: 14px; }
+            .stats { font-size: 12px; flex-direction: column; align-items: flex-start; gap: 4px; }
+            .stats .hint { display: none; }
+            .result { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
+            .result .avatar { width: 38px; height: 38px; font-size: 14px; }
+            .result .name { font-size: 14px; }
+            .result .detail { font-size: 12px; gap: 2px 10px; }
+            .result .detail .badge { font-size: 10px; padding: 0 8px; }
+            .result .copy { width: 100%; text-align: center; padding: 8px; }
+            .empty { padding: 40px 16px; }
+            .empty i { font-size: 36px; }
+            .empty h3 { font-size: 16px; }
         }
 
-        /* DARK MODE */
         @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-primary: #0F0A1A;
-                --bg-card: #1A1430;
-                --text-primary: #F1F5F9;
-                --text-secondary: #94A3B8;
-                --text-muted: #64748B;
-                --border: #2D3A4F;
-                --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-                --shadow-lg: 0 8px 32px rgba(124, 58, 237, 0.15);
-                --primary-light: rgba(124, 58, 237, 0.2);
-            }
-
-            .search-header {
-                border-bottom-color: var(--border);
-            }
-
-            .search-wrapper input {
-                background: var(--bg-card);
-                color: var(--text-primary);
-                border-color: var(--border);
-            }
-
-            .search-wrapper input:focus {
-                border-color: var(--primary);
-            }
-
-            .result-item {
-                background: var(--bg-card);
-                border-color: var(--border);
-            }
-
-            .result-item .avatar {
-                background: var(--primary-light);
-                border-color: var(--border);
-            }
-
-            .result-item .details .id-badge {
-                background: var(--bg-primary);
-            }
-
-            .empty-state {
-                background: var(--bg-card);
-                border-color: var(--border);
-            }
-
-            .empty-state i {
-                color: var(--border);
-            }
-
-            .toast {
-                background: var(--bg-card);
-                color: var(--text-primary);
-                border-left-color: var(--primary);
-            }
-
+            body { background: #0F0A1A; color: #F1F5F9; }
+            .header { border-bottom-color: #2D3A4F; }
+            .header .brand { color: #F1F5F9; }
+            .header .brand span { color: #64748B; }
+            .search-box input { background: #1A1430; color: #F1F5F9; border-color: #2D3A4F; }
+            .search-box input:focus { border-color: #7C3AED; }
+            .search-box input::placeholder { color: #64748B; }
+            .search-box .icon { color: #64748B; }
+            .search-box .clear { color: #64748B; }
+            .search-box .clear:hover { color: #F1F5F9; }
+            .stats { color: #64748B; }
+            .stats strong { color: #F1F5F9; }
+            .stats .hint kbd { background: #1A1430; border-color: #2D3A4F; color: #94A3B8; }
+            .result { background: #1A1430; border-color: #2D3A4F; }
+            .result:hover { border-color: #7C3AED; }
+            .result .avatar { background: rgba(124, 58, 237, 0.2); border-color: #2D3A4F; color: #A78BFA; }
+            .result .name { color: #F1F5F9; }
+            .result .detail { color: #94A3B8; }
+            .result .detail i { color: #A78BFA; }
+            .result .detail .sep { color: #2D3A4F; }
+            .result .detail .badge { background: #0F0A1A; color: #94A3B8; }
+            .empty { background: #1A1430; border-color: #2D3A4F; color: #64748B; }
+            .empty i { color: #2D3A4F; }
+            .empty h3 { color: #F1F5F9; }
+            .empty p { color: #64748B; }
+            .toast { background: #1A1430; color: #F1F5F9; border-left-color: #7C3AED; }
             .toast.success { border-left-color: #22C55E; }
             .toast.error { border-left-color: #EF4444; }
-        }
-
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary);
-            border-radius: 2px;
+            .highlight { background: rgba(124, 58, 237, 0.3); color: #A78BFA; }
         }
     </style>
 </head>
 <body>
 
     <!-- HEADER -->
-    <header class="search-header">
+    <div class="header">
         <div class="brand">
             <i class="fas fa-vote-yea"></i>
-            <span>Villimale</span>
-            <span class="sub">Dhaaira</span>
+            Villimale <span>Dhaaira</span>
         </div>
-        <button class="close-btn" onclick="window.close()">
-            <i class="fas fa-times"></i> Close
-        </button>
-    </header>
+    </div>
 
-    <!-- SEARCH BAR -->
-    <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
+    <!-- SEARCH -->
+    <div class="search-box">
+        <i class="fas fa-search icon"></i>
         <input type="text" id="searchInput" placeholder="Search by name, ID, or house..." autofocus />
-        <button class="clear-btn" id="clearBtn" onclick="clearSearch()">
+        <button class="clear" id="clearBtn" onclick="clearSearch()">
             <i class="fas fa-times-circle"></i>
         </button>
     </div>
 
     <!-- STATS -->
-    <div class="search-stats">
-        <span><span class="count" id="resultCount">0</span> voters found</span>
-        <span class="hint">Press <kbd>Esc</kbd> to clear · <kbd>/</kbd> to search</span>
+    <div class="stats">
+        <span><strong id="resultCount">0</strong> voters found</span>
+        <span class="hint">Press <kbd>/</kbd> to search · <kbd>Esc</kbd> to clear</span>
     </div>
 
     <!-- RESULTS -->
-    <div class="results-container" id="resultsContainer">
-        <div class="loading-spinner">
-            <i class="fas fa-spinner"></i> Loading voter data...
+    <div class="results" id="resultsContainer">
+        <div class="loading">
+            <i class="fas fa-spinner"></i>
+            Loading voters...
         </div>
     </div>
 
     <div id="toastContainer"></div>
 
+    <!-- ==========================================
+    SCRIPTS
+    ========================================== -->
     <script>
         // ============================================
-        // STANDALONE SEARCH - WORKS LOCALLY
+        // CONFIG
         // ============================================
+        const CONFIG = {
+            SUPABASE_URL: 'https://espezmdpkoixnfchomqb.supabase.co',
+            SUPABASE_ANON_KEY: 'sb_publishable_xP8z74zcMuCkj6xlu1bJ3w_Kudqbcu1',
+            APP: {
+                tableName: 'full_import'
+            }
+        };
 
-        // BUILD SAMPLE DATA DIRECTLY (No external calls)
-        function buildSampleData() {
-            const houses = [
-                'H. Orchid', 'H. Rose', 'H. Tulip', 'H. Lotus', 'H. Lily',
-                'H. Clover', 'H. Daisy', 'H. Palm', 'H. Sunset', 'H. Coral',
-                'H. Breeze', 'H. Wave', 'H. Sand', 'H. Star', 'H. Moonlight'
-            ];
+        // ============================================
+        // STATE
+        // ============================================
+        let allVoters = [];
+        let searchTimeout = null;
 
-            const names = [
-                'Ahmed Rasheed', 'Fathimath Shazna', 'Mohamed Aslam', 'Aishath Rasha',
-                'Abdulla Saeed', 'Mariyam Shakeela', 'Nashid Waheed', 'Hussain Nizar',
-                'Fathimath Suzan', 'Adam Zameer', 'Aishath Naba', 'Mohamed Saeed',
-                'Fathimath Zahra', 'Ibrahim Shafeeq', 'Aminath Shifaz', 'Hassan Zareer',
-                'Mariyam Zuha', 'Ahmed Naseer', 'Fathimath Nashid', 'Mohamed Shujau'
-            ];
+        // ============================================
+        // SUPABASE
+        // ============================================
+        let supabaseClient = null;
 
-            const parties = ['MDP', 'PNC', 'MDP', 'Other', 'MDP', 'PNC', 'MDP', 'Other'];
+        function initSupabase() {
+            try {
+                if (typeof supabase !== 'undefined') {
+                    supabaseClient = supabase.createClient(
+                        CONFIG.SUPABASE_URL,
+                        CONFIG.SUPABASE_ANON_KEY
+                    );
+                    console.log('✅ Supabase ready');
+                    return true;
+                }
+            } catch (e) {
+                console.warn('⚠️ Supabase init failed:', e.message);
+            }
+            return false;
+        }
 
-            const voters = [];
+        // ============================================
+        // LOAD DATA
+        // ============================================
+        async function loadData() {
+            try {
+                if (!supabaseClient) {
+                    initSupabase();
+                }
 
-            for (let i = 0; i < 3351; i++) {
-                const statuses = ['will-vote', 'not-vote', 'pending', 'undecided'];
-                const reaches = ['reached', 'not-reached'];
-                
-                voters.push({
+                if (!supabaseClient) {
+                    console.log('📊 No Supabase, using sample data');
+                    useSampleData();
+                    return;
+                }
+
+                const table = CONFIG.APP.tableName || 'full_import';
+                let data = [];
+                let from = 0;
+                const size = 1000;
+
+                console.log('📊 Fetching from Supabase...');
+
+                while (true) {
+                    const { data: d, error } = await supabaseClient
+                        .from(table)
+                        .select('*')
+                        .order('id', { ascending: true })
+                        .range(from, from + size - 1);
+
+                    if (error) {
+                        console.warn('⚠️ Supabase error:', error.message);
+                        break;
+                    }
+                    if (!d || d.length === 0) break;
+
+                    data = data.concat(d);
+                    console.log(`📄 Loaded ${data.length} voters so far...`);
+
+                    if (d.length < size) break;
+                    from += size;
+                }
+
+                if (data.length > 0) {
+                    allVoters = data;
+                    console.log('✅ Loaded ' + allVoters.length + ' voters from Supabase');
+                } else {
+                    console.log('📊 No data from Supabase, using sample data');
+                    useSampleData();
+                }
+
+                renderResults(allVoters, '');
+                document.getElementById('resultCount').textContent = allVoters.length;
+
+            } catch (e) {
+                console.error('❌ Error loading data:', e);
+                useSampleData();
+            }
+        }
+
+        // ============================================
+        // SAMPLE DATA (Fallback)
+        // ============================================
+        function useSampleData() {
+            const houses = ['H. Orchid', 'H. Rose', 'H. Tulip', 'H. Lotus', 'H. Lily', 'H. Clover', 'H. Daisy', 'H. Palm', 'H. Sunset', 'H. Coral'];
+            const names = ['Ahmed Rasheed', 'Fathimath Shazna', 'Mohamed Aslam', 'Nashid Waheed', 'Hussain Nizar', 'Mariyam Shakeela', 'Aishath Rasha', 'Abdulla Saeed'];
+
+            allVoters = [];
+
+            for (let i = 0; i < 200; i++) {
+                allVoters.push({
                     id: i + 1,
-                    name: names[i % names.length] + (i > 19 ? ' ' + (i + 1) : ''),
+                    name: names[i % names.length] + (i > 7 ? ' ' + (i + 1) : ''),
                     national_id: 'A' + String(100000 + i).padStart(6, '0'),
                     house: houses[i % houses.length],
-                    phone: '7' + String(700000 + i).padStart(6, '0'),
-                    sex: i % 2 === 0 ? 'M' : 'F',
-                    age: 18 + (i % 50),
-                    party: parties[i % parties.length],
-                    vote_status: statuses[i % statuses.length],
-                    reach_status: reaches[i % reaches.length],
-                    remarks: i % 4 === 0 ? 'Met with family' : null,
-                    photo_url: ''
+                    phone: '7' + String(700000 + i).padStart(6, '0')
                 });
             }
 
-            return voters;
-        }
-
-        // STATE
-        let allVoters = [];
-        let searchTimeout = null;
-        let currentQuery = '';
-
-        // INIT
-        function init() {
-            console.log('Building voter data...');
-            allVoters = buildSampleData();
-            console.log('Loaded ' + allVoters.length + ' voters');
-            
-            // Show all voters initially
+            console.log('📊 Sample data loaded: ' + allVoters.length + ' voters');
             renderResults(allVoters, '');
-            
-            // Update stats
             document.getElementById('resultCount').textContent = allVoters.length;
         }
 
+        // ============================================
         // SEARCH
+        // ============================================
         function performSearch() {
             const query = document.getElementById('searchInput').value.trim();
             const clearBtn = document.getElementById('clearBtn');
 
             if (query.length > 0) {
-                clearBtn.classList.add('visible');
+                clearBtn.classList.add('show');
             } else {
-                clearBtn.classList.remove('visible');
+                clearBtn.classList.remove('show');
             }
-
-            currentQuery = query;
 
             clearTimeout(searchTimeout);
 
@@ -699,22 +596,21 @@
             }, 200);
         }
 
-        // HIGHLIGHT
+        // ============================================
+        // HIGHLIGHT TEXT
+        // ============================================
         function highlightText(text, query) {
             if (!query || !text) return text || '';
-            const lowerText = text.toLowerCase();
-            const lowerQuery = query.toLowerCase();
-            const index = lowerText.indexOf(lowerQuery);
-            if (index === -1) return text;
-            
-            const before = text.substring(0, index);
-            const match = text.substring(index, index + query.length);
-            const after = text.substring(index + query.length);
-            
-            return before + '<span class="highlight">' + match + '</span>' + after;
+            const idx = text.toLowerCase().indexOf(query.toLowerCase());
+            if (idx === -1) return text;
+            return text.substring(0, idx) + 
+                   '<span class="highlight">' + text.substring(idx, idx + query.length) + '</span>' + 
+                   text.substring(idx + query.length);
         }
 
+        // ============================================
         // RENDER RESULTS
+        // ============================================
         function renderResults(voters, query) {
             const container = document.getElementById('resultsContainer');
             const countEl = document.getElementById('resultCount');
@@ -723,7 +619,7 @@
 
             if (voters.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
+                    <div class="empty">
                         <i class="fas fa-users"></i>
                         <h3>No voters found</h3>
                         <p>Try a different search term</p>
@@ -734,30 +630,26 @@
 
             container.innerHTML = voters.map(v => {
                 const initial = (v.name || 'U').charAt(0).toUpperCase();
-                const photo = v.photo_url ? 
-                    `<img src="${v.photo_url}" onerror="this.parentElement.textContent='${initial}'" />` : 
-                    initial;
-
-                const displayName = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
-                const displayId = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
-                const displayHouse = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
-                const displayPhone = query ? highlightText(v.phone || 'N/A', query) : (v.phone || 'N/A');
+                const name = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
+                const id = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
+                const house = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
+                const phone = query ? highlightText(v.phone || 'N/A', query) : (v.phone || 'N/A');
 
                 return `
-                    <div class="result-item">
-                        <div class="avatar">${photo}</div>
+                    <div class="result">
+                        <div class="avatar">${initial}</div>
                         <div class="info">
-                            <div class="name">${displayName}</div>
-                            <div class="details">
-                                <span><i class="fas fa-id-card"></i> ${displayId}</span>
+                            <div class="name">${name}</div>
+                            <div class="detail">
+                                <span><i class="fas fa-id-card"></i> ${id}</span>
                                 <span class="sep">·</span>
-                                <span><i class="fas fa-phone"></i> ${displayPhone}</span>
+                                <span><i class="fas fa-phone"></i> ${phone}</span>
                                 <span class="sep">·</span>
-                                <span><i class="fas fa-home"></i> ${displayHouse}</span>
-                                <span class="id-badge">ID ${v.id}</span>
+                                <span><i class="fas fa-home"></i> ${house}</span>
+                                <span class="badge">ID ${v.id}</span>
                             </div>
                         </div>
-                        <button class="action-btn" onclick="copyVoterInfo(${v.id})">
+                        <button class="copy" onclick="copyVoter(${v.id})">
                             <i class="fas fa-copy"></i> Copy
                         </button>
                     </div>
@@ -765,58 +657,62 @@
             }).join('');
         }
 
-        // COPY VOTER INFO
-        function copyVoterInfo(id) {
-            const voter = allVoters.find(v => v.id === id);
-            if (!voter) return;
+        // ============================================
+        // COPY VOTER
+        // ============================================
+        function copyVoter(id) {
+            const v = allVoters.find(x => x.id === id);
+            if (!v) return;
 
-            const info = `Name: ${voter.name}\nID: ${voter.national_id}\nPhone: ${voter.phone}\nHouse: ${voter.house}`;
-
+            const info = `Name: ${v.name}\nID: ${v.national_id}\nPhone: ${v.phone}\nHouse: ${v.house}`;
+            
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(info).then(() => {
-                    showToast('Voter info copied to clipboard', 'success');
-                }).catch(() => {
-                    fallbackCopy(info);
-                });
+                    showToast('Copied to clipboard', 'success');
+                }).catch(() => fallbackCopy(info));
             } else {
                 fallbackCopy(info);
             }
         }
 
         function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
             try {
                 document.execCommand('copy');
-                showToast('Voter info copied to clipboard', 'success');
+                showToast('Copied to clipboard', 'success');
             } catch (e) {
-                showToast('Could not copy. Please select and copy manually.', 'error');
+                showToast('Could not copy', 'error');
             }
-            textarea.remove();
+            ta.remove();
         }
 
+        // ============================================
         // CLEAR SEARCH
+        // ============================================
         function clearSearch() {
             document.getElementById('searchInput').value = '';
-            document.getElementById('clearBtn').classList.remove('visible');
-            currentQuery = '';
+            document.getElementById('clearBtn').classList.remove('show');
             renderResults(allVoters, '');
             document.getElementById('searchInput').focus();
         }
 
+        // ============================================
         // TOAST
-        function showToast(message, type = 'info') {
+        // ============================================
+        function showToast(msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             const existing = container.querySelector('.toast');
             if (existing) existing.remove();
 
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.textContent = message;
+            toast.textContent = msg;
             container.appendChild(toast);
 
             setTimeout(() => {
@@ -826,8 +722,11 @@
             }, 2500);
         }
 
+        // ============================================
         // KEYBOARD SHORTCUTS
+        // ============================================
         document.addEventListener('keydown', function(e) {
+            // / to focus search
             if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
                 const active = document.activeElement;
                 if (active && active.tagName !== 'INPUT') {
@@ -835,6 +734,7 @@
                     document.getElementById('searchInput').focus();
                 }
             }
+            // Escape to clear
             if (e.key === 'Escape') {
                 if (document.getElementById('searchInput').value) {
                     clearSearch();
@@ -844,15 +744,15 @@
             }
         });
 
-        // EVENT LISTENERS
+        // ============================================
+        // INIT
+        // ============================================
         document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            searchInput.addEventListener('input', performSearch);
+            const input = document.getElementById('searchInput');
+            input.addEventListener('input', performSearch);
 
-            setTimeout(() => searchInput.focus(), 400);
-
-            // Initialize with data
-            init();
+            setTimeout(() => input.focus(), 400);
+            loadData();
         });
     </script>
 
