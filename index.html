@@ -117,7 +117,6 @@
             color: #1E293B;
         }
 
-        /* TOOLBAR */
         .toolbar {
             width: 100%;
             max-width: 800px;
@@ -125,6 +124,13 @@
             justify-content: space-between;
             align-items: center;
             padding: 4px 4px 12px 4px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
             gap: 12px;
             flex-wrap: wrap;
         }
@@ -139,18 +145,19 @@
             font-weight: 600;
         }
 
-        .toolbar .hint {
-            font-size: 12px;
-            color: #94A3B8;
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 13px;
+            background: white;
+            color: #1E293B;
+            outline: none;
+            cursor: pointer;
         }
 
-        .toolbar .hint kbd {
-            background: #F1F5F9;
-            padding: 2px 8px;
-            border-radius: 4px;
-            border: 1px solid #E2E8F0;
-            font-size: 11px;
-            font-family: inherit;
+        .filter-select:focus {
+            border-color: #7C3AED;
         }
 
         .view-toggle {
@@ -182,7 +189,6 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
-        /* LIST VIEW */
         .results-list {
             width: 100%;
             max-width: 800px;
@@ -199,15 +205,13 @@
             display: flex;
             align-items: center;
             gap: 14px;
-            transition: 0.2s;
             cursor: pointer;
-            animation: fadeIn 0.3s ease;
+            transition: 0.2s;
         }
 
         .result-item:hover {
             border-color: #7C3AED;
             box-shadow: 0 4px 16px rgba(124, 58, 237, 0.08);
-            transform: translateY(-1px);
         }
 
         .result-item .avatar {
@@ -279,12 +283,11 @@
             color: #64748B;
         }
 
-        /* GRID VIEW */
         .results-grid {
             width: 100%;
             max-width: 800px;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
             gap: 12px;
         }
 
@@ -293,9 +296,8 @@
             border-radius: 12px;
             border: 1px solid #E2E8F0;
             overflow: hidden;
-            transition: 0.2s;
             cursor: pointer;
-            animation: fadeIn 0.3s ease;
+            transition: 0.2s;
         }
 
         .result-card:hover {
@@ -306,7 +308,7 @@
 
         .result-card .card-photo {
             width: 100%;
-            height: 160px;
+            height: 150px;
             background: #EDE9FE;
             display: flex;
             align-items: center;
@@ -328,7 +330,7 @@
         }
 
         .result-card .card-body {
-            padding: 12px 14px 14px;
+            padding: 10px 12px 12px;
         }
 
         .result-card .card-name {
@@ -359,7 +361,7 @@
             display: flex;
             gap: 4px;
             flex-wrap: wrap;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .result-card .card-badges .badge {
@@ -377,7 +379,6 @@
             margin-top: 4px;
         }
 
-        /* MODAL */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -388,7 +389,6 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            animation: fadeIn 0.2s ease;
         }
 
         .modal-overlay.open {
@@ -402,12 +402,11 @@
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
-            padding: 0;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
+            animation: modalIn 0.3s ease;
         }
 
-        @keyframes slideUp {
+        @keyframes modalIn {
             from { opacity: 0; transform: scale(0.95) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
@@ -448,8 +447,8 @@
         }
 
         .modal .modal-photo img {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             object-fit: cover;
             border: 4px solid white;
@@ -457,14 +456,14 @@
         }
 
         .modal .modal-photo .no-photo {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: #EDE9FE;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
+            font-size: 40px;
             font-weight: 700;
             color: #7C3AED;
             text-transform: uppercase;
@@ -474,13 +473,13 @@
         }
 
         .modal .modal-info {
-            padding: 16px 20px 20px;
+            padding: 14px 20px 16px;
         }
 
         .modal .modal-info .row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #F1F5F9;
         }
 
@@ -525,7 +524,6 @@
 
         .modal .modal-actions .btn-copy:hover {
             background: #6D28D9;
-            transform: translateY(-1px);
         }
 
         .modal .modal-actions .btn-close-modal {
@@ -537,7 +535,6 @@
             background: #E2E8F0;
         }
 
-        /* EMPTY STATE */
         .empty {
             text-align: center;
             padding: 60px 20px;
@@ -589,11 +586,6 @@
             to { transform: rotate(360deg); }
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         .highlight {
             background: #EDE9FE;
             color: #6D28D9;
@@ -617,19 +609,18 @@
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             max-width: 92%;
             text-align: center;
-            animation: slideUpToast 0.3s ease;
+            animation: toastIn 0.3s ease;
             border-left: 4px solid #7C3AED;
         }
 
         .toast.success { border-left-color: #22C55E; }
         .toast.error { border-left-color: #EF4444; }
 
-        @keyframes slideUpToast {
+        @keyframes toastIn {
             from { opacity: 0; transform: translateX(-50%) translateY(20px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        /* RESPONSIVE */
         @media (max-width: 600px) {
             body { padding: 12px; }
             .header .brand { font-size: 16px; }
@@ -638,29 +629,19 @@
             .search-box .icon { font-size: 15px; left: 14px; }
             .search-box .clear { font-size: 17px; right: 14px; }
             .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
-            .toolbar .hint { display: none; }
+            .toolbar-left { flex-wrap: wrap; }
             .stats { font-size: 12px; }
             .result-item { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
             .result-item .avatar { width: 40px; height: 40px; font-size: 15px; }
             .result-item .name { font-size: 14px; }
             .result-item .detail { font-size: 12px; gap: 2px 10px; }
             .results-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-            .result-card .card-photo { height: 120px; }
-            .result-card .card-photo .no-photo { font-size: 36px; }
-            .result-card .card-body { padding: 10px 12px 12px; }
-            .result-card .card-name { font-size: 13px; }
+            .result-card .card-photo { height: 110px; }
             .modal { max-width: 100%; margin: 10px; }
             .modal .modal-photo img { width: 80px; height: 80px; }
             .modal .modal-photo .no-photo { width: 80px; height: 80px; font-size: 32px; }
-            .modal .modal-info .row { padding: 6px 0; font-size: 13px; }
-            .modal .modal-actions { flex-direction: column; }
         }
 
-        @media (min-width: 601px) and (max-width: 900px) {
-            .results-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-        }
-
-        /* DARK MODE */
         @media (prefers-color-scheme: dark) {
             body { background: #0F0A1A; color: #F1F5F9; }
             .header { border-bottom-color: #2D3A4F; }
@@ -674,7 +655,8 @@
             .search-box .clear:hover { color: #F1F5F9; }
             .stats { color: #64748B; }
             .stats strong { color: #F1F5F9; }
-            .toolbar .hint kbd { background: #1A1430; border-color: #2D3A4F; color: #94A3B8; }
+            .filter-select { background: #1A1430; color: #F1F5F9; border-color: #2D3A4F; }
+            .filter-select:focus { border-color: #7C3AED; }
             .view-toggle { background: #1A1430; }
             .view-toggle button { color: #64748B; }
             .view-toggle button:hover { color: #F1F5F9; }
@@ -698,7 +680,6 @@
             .empty { background: #1A1430; border-color: #2D3A4F; color: #64748B; }
             .empty i { color: #2D3A4F; }
             .empty h3 { color: #F1F5F9; }
-            .empty p { color: #64748B; }
             .modal { background: #1A1430; }
             .modal .modal-header { border-bottom-color: #2D3A4F; }
             .modal .modal-header h2 { color: #F1F5F9; }
@@ -712,9 +693,7 @@
             .modal .modal-actions { border-top-color: #2D3A4F; }
             .modal .modal-actions .btn-close-modal { background: #0F0A1A; color: #94A3B8; }
             .modal .modal-actions .btn-close-modal:hover { background: #2D3A4F; }
-            .toast { background: #1A1430; color: #F1F5F9; border-left-color: #7C3AED; }
-            .toast.success { border-left-color: #22C55E; }
-            .toast.error { border-left-color: #EF4444; }
+            .toast { background: #1A1430; color: #F1F5F9; }
             .highlight { background: rgba(124, 58, 237, 0.3); color: #A78BFA; }
         }
     </style>
@@ -722,12 +701,12 @@
 <body>
 
     <!-- HEADER -->
-    <div class="header">
+    <header class="header">
         <div class="brand">
             <i class="fas fa-vote-yea"></i>
             Villimale <span>Dhaaira</span>
         </div>
-    </div>
+    </header>
 
     <!-- SEARCH -->
     <div class="search-box">
@@ -740,28 +719,24 @@
 
     <!-- TOOLBAR -->
     <div class="toolbar">
-        <div class="stats">
-            <strong id="resultCount">0</strong> voters found
+        <div class="toolbar-left">
+            <div class="stats"><strong id="resultCount">0</strong> voters found</div>
+            <select class="filter-select" id="partyFilter" onchange="applyFilters()">
+                <option value="all">All Parties</option>
+                <option value="MDP">MDP</option>
+                <option value="PNC">PNC</option>
+                <option value="Other">Other</option>
+            </select>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <span class="hint">Press <kbd>/</kbd> · <kbd>Esc</kbd> clear</span>
-            <div class="view-toggle">
-                <button class="active" data-view="list" onclick="setView('list')">
-                    <i class="fas fa-list"></i>
-                </button>
-                <button data-view="grid" onclick="setView('grid')">
-                    <i class="fas fa-th"></i>
-                </button>
-            </div>
+        <div class="view-toggle">
+            <button class="active" data-view="list" onclick="setView('list')"><i class="fas fa-list"></i></button>
+            <button data-view="grid" onclick="setView('grid')"><i class="fas fa-th"></i></button>
         </div>
     </div>
 
     <!-- RESULTS -->
     <div id="resultsContainer">
-        <div class="loading">
-            <i class="fas fa-spinner"></i>
-            Loading voters...
-        </div>
+        <div class="loading"><i class="fas fa-spinner"></i> Loading voters...</div>
     </div>
 
     <!-- MODAL -->
@@ -774,20 +749,17 @@
             <div class="modal-photo" id="modalPhoto">
                 <div class="no-photo">👤</div>
             </div>
-            <div class="modal-info" id="modalInfo">
+            <div class="modal-info">
                 <div class="row"><span class="label">National ID</span><span class="value" id="modalId">—</span></div>
                 <div class="row"><span class="label">Phone</span><span class="value" id="modalPhone">—</span></div>
                 <div class="row"><span class="label">House</span><span class="value" id="modalHouse">—</span></div>
-                <div class="row"><span class="label">Age</span><span class="value" id="modalAge">—</span></div>
                 <div class="row"><span class="label">Gender</span><span class="value" id="modalGender">—</span></div>
                 <div class="row"><span class="label">Party</span><span class="value" id="modalParty">—</span></div>
                 <div class="row"><span class="label">Vote Status</span><span class="value" id="modalStatus">—</span></div>
                 <div class="row"><span class="label">Reach Status</span><span class="value" id="modalReach">—</span></div>
             </div>
             <div class="modal-actions">
-                <button class="btn-copy" onclick="copyModalVoter()">
-                    <i class="fas fa-copy"></i> Copy Details
-                </button>
+                <button class="btn-copy" onclick="copyModalVoter()"><i class="fas fa-copy"></i> Copy Details</button>
                 <button class="btn-close-modal" onclick="closeModal()">Close</button>
             </div>
         </div>
@@ -795,116 +767,57 @@
 
     <div id="toastContainer"></div>
 
-    <!-- ==========================================
-    SCRIPTS
-    ========================================== -->
     <script>
-        // ============================================
-        // CONFIG
-        // ============================================
-        const CONFIG = {
+        // ============================================================
+        // CONFIGURATION
+        // ============================================================
+        var CONFIG = {
             SUPABASE_URL: 'https://espezmdpkoixnfchomqb.supabase.co',
             SUPABASE_ANON_KEY: 'sb_publishable_xP8z74zcMuCkj6xlu1bJ3w_Kudqbcu1',
-            APP: {
-                tableName: 'full_import'
-            }
+            APP: { tableName: 'full_import' }
         };
 
-        // ============================================
+        // ============================================================
         // STATE
-        // ============================================
-        let allVoters = [];
-        let searchTimeout = null;
-        let currentView = 'list';
-        let currentModalVoter = null;
+        // ============================================================
+        var allVoters = [];
+        var currentView = 'list';
+        var currentModalVoter = null;
+        var searchTimeout = null;
+        var currentPartyFilter = 'all';
 
-        // ============================================
+        // ============================================================
+        // DOM REFS
+        // ============================================================
+        var $ = function(id) { return document.getElementById(id); };
+        var searchInput = $('searchInput');
+        var resultsContainer = $('resultsContainer');
+        var resultCount = $('resultCount');
+        var clearBtn = $('clearBtn');
+        var partyFilter = $('partyFilter');
+
+        // ============================================================
         // SUPABASE
-        // ============================================
-        let supabaseClient = null;
+        // ============================================================
+        var supabaseClient = null;
 
         function initSupabase() {
             try {
                 if (typeof supabase !== 'undefined') {
-                    supabaseClient = supabase.createClient(
-                        CONFIG.SUPABASE_URL,
-                        CONFIG.SUPABASE_ANON_KEY
-                    );
-                    console.log('✅ Supabase ready');
+                    supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
                     return true;
                 }
-            } catch (e) {
-                console.warn('⚠️ Supabase init failed:', e.message);
-            }
+            } catch (e) { /* ignore */ }
             return false;
         }
 
-        // ============================================
-        // LOAD DATA
-        // ============================================
-        async function loadData() {
-            try {
-                if (!supabaseClient) {
-                    initSupabase();
-                }
-
-                if (!supabaseClient) {
-                    console.log('📊 No Supabase, using sample data');
-                    useSampleData();
-                    return;
-                }
-
-                const table = CONFIG.APP.tableName || 'full_import';
-                let data = [];
-                let from = 0;
-                const size = 1000;
-
-                console.log('📊 Fetching from Supabase...');
-
-                while (true) {
-                    const { data: d, error } = await supabaseClient
-                        .from(table)
-                        .select('*')
-                        .order('id', { ascending: true })
-                        .range(from, from + size - 1);
-
-                    if (error) {
-                        console.warn('⚠️ Supabase error:', error.message);
-                        break;
-                    }
-                    if (!d || d.length === 0) break;
-
-                    data = data.concat(d);
-                    console.log(`📄 Loaded ${data.length} voters so far...`);
-
-                    if (d.length < size) break;
-                    from += size;
-                }
-
-                if (data.length > 0) {
-                    allVoters = data;
-                    console.log('✅ Loaded ' + allVoters.length + ' voters from Supabase');
-                } else {
-                    console.log('📊 No data from Supabase, using sample data');
-                    useSampleData();
-                }
-
-                renderResults(allVoters, '');
-                document.getElementById('resultCount').textContent = allVoters.length;
-
-            } catch (e) {
-                console.error('❌ Error loading data:', e);
-                useSampleData();
-            }
-        }
-
-        // ============================================
+        // ============================================================
         // SAMPLE DATA
-        // ============================================
-        function useSampleData() {
-            const houses = ['H. Orchid', 'H. Rose', 'H. Tulip', 'H. Lotus', 'H. Lily', 'H. Clover', 'H. Daisy', 'H. Palm', 'H. Sunset', 'H. Coral'];
-            const names = ['Ahmed Rasheed', 'Fathimath Shazna', 'Mohamed Aslam', 'Nashid Waheed', 'Hussain Nizar', 'Mariyam Shakeela', 'Aishath Rasha', 'Abdulla Saeed'];
-            const photos = [
+        // ============================================================
+        function getSampleData() {
+            var houses = ['H. Orchid', 'H. Rose', 'H. Tulip', 'H. Lotus', 'H. Lily', 'H. Clover', 'H. Daisy', 'H. Palm', 'H. Sunset', 'H. Coral'];
+            var names = ['Ahmed Rasheed', 'Fathimath Shazna', 'Mohamed Aslam', 'Nashid Waheed', 'Hussain Nizar', 'Mariyam Shakeela', 'Aishath Rasha', 'Abdulla Saeed'];
+            var photos = [
                 'https://ui-avatars.com/api/?name=Ahmed+Rasheed&background=7C3AED&color=fff&size=200',
                 'https://ui-avatars.com/api/?name=Fathimath+Shazna&background=7C3AED&color=fff&size=200',
                 'https://ui-avatars.com/api/?name=Mohamed+Aslam&background=7C3AED&color=fff&size=200',
@@ -914,273 +827,279 @@
                 'https://ui-avatars.com/api/?name=Aishath+Rasha&background=7C3AED&color=fff&size=200',
                 'https://ui-avatars.com/api/?name=Abdulla+Saeed&background=7C3AED&color=fff&size=200'
             ];
-            const parties = ['MDP', 'PNC', 'MDP', 'Other', 'MDP', 'PNC', 'MDP', 'Other'];
-            const statuses = ['will-vote', 'not-vote', 'pending', 'undecided'];
-            const reaches = ['reached', 'not-reached'];
+            var parties = ['MDP', 'PNC', 'MDP', 'Other', 'MDP', 'PNC', 'MDP', 'Other'];
+            var statuses = ['will-vote', 'not-vote', 'pending', 'undecided'];
+            var reaches = ['reached', 'not-reached'];
+            var data = [];
 
-            allVoters = [];
-
-            for (let i = 0; i < 200; i++) {
-                const idx = i % names.length;
-                allVoters.push({
+            for (var i = 0; i < 200; i++) {
+                var idx = i % names.length;
+                data.push({
                     id: i + 1,
                     name: names[idx] + (i > 7 ? ' ' + (i + 1) : ''),
                     national_id: 'A' + String(100000 + i).padStart(6, '0'),
                     house: houses[i % houses.length],
                     phone: '7' + String(700000 + i).padStart(6, '0'),
                     photo_url: photos[idx],
-                    age: 18 + (i % 50),
                     sex: i % 2 === 0 ? 'M' : 'F',
                     party: parties[i % parties.length],
                     vote_status: statuses[i % statuses.length],
                     reach_status: reaches[i % reaches.length]
                 });
             }
-
-            console.log('📊 Sample data loaded: ' + allVoters.length + ' voters');
-            renderResults(allVoters, '');
-            document.getElementById('resultCount').textContent = allVoters.length;
+            return data;
         }
 
-        // ============================================
-        // VIEW TOGGLE
-        // ============================================
-        function setView(view) {
-            currentView = view;
-            document.querySelectorAll('.view-toggle button').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.view === view);
-            });
-            
-            const query = document.getElementById('searchInput').value.trim();
-            const results = getFilteredResults(query);
+        // ============================================================
+        // LOAD DATA
+        // ============================================================
+        async function loadData() {
+            try {
+                if (!supabaseClient) initSupabase();
+
+                if (!supabaseClient) {
+                    allVoters = getSampleData();
+                    renderResults(allVoters);
+                    return;
+                }
+
+                var table = CONFIG.APP.tableName;
+                var data = [];
+                var from = 0;
+                var size = 1000;
+
+                while (true) {
+                    var result = await supabaseClient.from(table).select('*').order('id', { ascending: true }).range(from, from + size - 1);
+                    if (result.error || !result.data || result.data.length === 0) break;
+                    data = data.concat(result.data);
+                    if (result.data.length < size) break;
+                    from += size;
+                }
+
+                allVoters = data.length > 0 ? data : getSampleData();
+                renderResults(allVoters);
+
+            } catch (e) {
+                allVoters = getSampleData();
+                renderResults(allVoters);
+            }
+        }
+
+        // ============================================================
+        // FILTERS
+        // ============================================================
+        function applyFilters() {
+            currentPartyFilter = partyFilter.value;
+            var query = searchInput.value.trim();
+            var results = getFiltered(query);
             renderResults(results, query);
+            resultCount.textContent = results.length;
         }
 
-        // ============================================
-        // GET FILTERED RESULTS
-        // ============================================
-        function getFilteredResults(query) {
-            if (!query) return allVoters;
-
-            const lowerQuery = query.toLowerCase();
-            const words = lowerQuery.split(/\s+/).filter(w => w.length > 0);
-
-            return allVoters.filter(v => {
-                const name = (v.name || '').toLowerCase();
-                const id = (v.national_id || '').toLowerCase();
-                const house = (v.house || '').toLowerCase();
-                const phone = (v.phone || '').toLowerCase();
-
-                return words.some(word =>
-                    name.includes(word) ||
-                    id.includes(word) ||
-                    house.includes(word) ||
-                    phone.includes(word)
-                );
-            });
-        }
-
-        // ============================================
+        // ============================================================
         // SEARCH
-        // ============================================
-        function performSearch() {
-            const query = document.getElementById('searchInput').value.trim();
-            const clearBtn = document.getElementById('clearBtn');
+        // ============================================================
+        function getFiltered(query) {
+            var voters = allVoters;
 
-            if (query.length > 0) {
-                clearBtn.classList.add('show');
-            } else {
-                clearBtn.classList.remove('show');
+            // Party filter
+            if (currentPartyFilter !== 'all') {
+                voters = voters.filter(function(v) {
+                    return (v.party || '') === currentPartyFilter;
+                });
             }
 
-            clearTimeout(searchTimeout);
+            // Search filter
+            if (!query) return voters;
 
-            searchTimeout = setTimeout(() => {
-                const results = getFilteredResults(query);
+            var q = query.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 0; });
+            return voters.filter(function(v) {
+                var name = (v.name || '').toLowerCase();
+                var id = (v.national_id || '').toLowerCase();
+                var house = (v.house || '').toLowerCase();
+                var phone = (v.phone || '').toLowerCase();
+                for (var i = 0; i < q.length; i++) {
+                    if (name.indexOf(q[i]) !== -1 || id.indexOf(q[i]) !== -1 || house.indexOf(q[i]) !== -1 || phone.indexOf(q[i]) !== -1) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+        }
+
+        function performSearch() {
+            var query = searchInput.value.trim();
+            clearBtn.classList.toggle('show', query.length > 0);
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                var results = getFiltered(query);
                 renderResults(results, query);
-                document.getElementById('resultCount').textContent = results.length;
+                resultCount.textContent = results.length;
             }, 200);
         }
 
-        // ============================================
-        // HIGHLIGHT TEXT
-        // ============================================
-        function highlightText(text, query) {
+        // ============================================================
+        // RENDER
+        // ============================================================
+        function highlight(text, query) {
             if (!query || !text) return text || '';
-
-            const words = query.split(/\s+/).filter(w => w.length > 0);
-            let result = text;
-
-            words.forEach(word => {
-                const regex = new RegExp('(' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+            var words = query.split(/\s+/).filter(function(w) { return w.length > 0; });
+            var result = text;
+            for (var i = 0; i < words.length; i++) {
+                var regex = new RegExp('(' + words[i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
                 result = result.replace(regex, '<span class="highlight">$1</span>');
-            });
-
+            }
             return result;
         }
 
-        // ============================================
-        // RENDER RESULTS
-        // ============================================
         function renderResults(voters, query) {
-            const container = document.getElementById('resultsContainer');
-            const countEl = document.getElementById('resultCount');
-
-            countEl.textContent = voters.length;
-
+            resultCount.textContent = voters.length;
             if (voters.length === 0) {
-                container.innerHTML = `
-                    <div class="empty">
-                        <i class="fas fa-users"></i>
-                        <h3>No voters found</h3>
-                        <p>Try a different search term</p>
-                    </div>
-                `;
+                resultsContainer.innerHTML = '<div class="empty"><i class="fas fa-users"></i><h3>No voters found</h3><p>Try a different search term</p></div>';
                 return;
             }
+            resultsContainer.innerHTML = (currentView === 'list') ? renderList(voters, query) : renderGrid(voters, query);
+        }
 
-            if (currentView === 'list') {
-                renderListView(container, voters, query);
-            } else {
-                renderGridView(container, voters, query);
+        function renderList(voters, query) {
+            var html = '<div class="results-list">';
+            for (var i = 0; i < voters.length; i++) {
+                var v = voters[i];
+                var initial = (v.name || 'U').charAt(0).toUpperCase();
+                var hasPhoto = v.photo_url && v.photo_url.length > 0;
+                var photoHtml = hasPhoto ?
+                    '<img src="' + v.photo_url + '" alt="' + v.name + '" onerror="this.parentElement.innerHTML=\'<span class=\\"no-photo\\">' + initial + '</span>\'" />' :
+                    '<span class="no-photo">' + initial + '</span>';
+
+                var name = query ? highlight(v.name || 'Unknown', query) : (v.name || 'Unknown');
+                var id = query ? highlight(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
+                var house = query ? highlight(v.house || 'N/A', query) : (v.house || 'N/A');
+                var phone = query ? highlight(v.phone || 'N/A', query) : (v.phone || 'N/A');
+
+                html +=
+                    '<div class="result-item" onclick="openModal(' + v.id + ')">' +
+                    '<div class="avatar">' + photoHtml + '</div>' +
+                    '<div class="info">' +
+                    '<div class="name">' + name + '</div>' +
+                    '<div class="detail">' +
+                    '<span><i class="fas fa-id-card"></i> ' + id + '</span>' +
+                    '<span class="sep">·</span>' +
+                    '<span><i class="fas fa-phone"></i> ' + phone + '</span>' +
+                    '<span class="sep">·</span>' +
+                    '<span><i class="fas fa-home"></i> ' + house + '</span>';
+                if (v.party) html += '<span class="badge">' + v.party + '</span>';
+                html += '</div></div></div>';
             }
+            html += '</div>';
+            return html;
         }
 
-        // ============================================
-        // RENDER LIST VIEW
-        // ============================================
-        function renderListView(container, voters, query) {
-            container.innerHTML = `<div class="results-list">`;
+        function renderGrid(voters, query) {
+            var html = '<div class="results-grid">';
+            for (var i = 0; i < voters.length; i++) {
+                var v = voters[i];
+                var initial = (v.name || 'U').charAt(0).toUpperCase();
+                var hasPhoto = v.photo_url && v.photo_url.length > 0;
+                var photoHtml = hasPhoto ?
+                    '<img src="' + v.photo_url + '" alt="' + v.name + '" onerror="this.parentElement.innerHTML=\'<span class=\\"no-photo\\">' + initial + '</span>\'" />' :
+                    '<span class="no-photo">' + initial + '</span>';
 
-            voters.forEach(v => {
-                const initial = (v.name || 'U').charAt(0).toUpperCase();
-                const hasPhoto = v.photo_url && v.photo_url.length > 0;
-                const photoHtml = hasPhoto ?
-                    `<img src="${v.photo_url}" alt="${v.name}" onerror="this.parentElement.innerHTML='<span class=\\'no-photo\\'>${initial}</span>'" />` :
-                    `<span class="no-photo">${initial}</span>`;
+                var name = query ? highlight(v.name || 'Unknown', query) : (v.name || 'Unknown');
+                var id = query ? highlight(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
+                var house = query ? highlight(v.house || 'N/A', query) : (v.house || 'N/A');
 
-                const name = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
-                const id = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
-                const house = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
-                const phone = query ? highlightText(v.phone || 'N/A', query) : (v.phone || 'N/A');
-
-                container.innerHTML += `
-                    <div class="result-item" onclick="openModal(${v.id})">
-                        <div class="avatar">${photoHtml}</div>
-                        <div class="info">
-                            <div class="name">${name}</div>
-                            <div class="detail">
-                                <span><i class="fas fa-id-card"></i> ${id}</span>
-                                <span class="sep">·</span>
-                                <span><i class="fas fa-phone"></i> ${phone}</span>
-                                <span class="sep">·</span>
-                                <span><i class="fas fa-home"></i> ${house}</span>
-                                ${v.age ? `<span class="badge">${v.age} yrs</span>` : ''}
-                                ${v.party ? `<span class="badge">${v.party}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML += `</div>`;
+                html +=
+                    '<div class="result-card" onclick="openModal(' + v.id + ')">' +
+                    '<div class="card-photo">' + photoHtml + '</div>' +
+                    '<div class="card-body">' +
+                    '<div class="card-name">' + name + '</div>' +
+                    '<div class="card-detail"><i class="fas fa-id-card"></i> ' + id + '</div>' +
+                    '<div class="card-detail"><i class="fas fa-home"></i> ' + house + '</div>' +
+                    '<div class="card-badges">';
+                if (v.party) html += '<span class="badge">' + v.party + '</span>';
+                if (v.vote_status) html += '<span class="badge">' + v.vote_status + '</span>';
+                html += '</div>' +
+                    '<div class="card-id">ID ' + v.id + '</div>' +
+                    '</div></div>';
+            }
+            html += '</div>';
+            return html;
         }
 
-        // ============================================
-        // RENDER GRID VIEW
-        // ============================================
-        function renderGridView(container, voters, query) {
-            container.innerHTML = `<div class="results-grid">`;
-
-            voters.forEach(v => {
-                const initial = (v.name || 'U').charAt(0).toUpperCase();
-                const hasPhoto = v.photo_url && v.photo_url.length > 0;
-                const photoHtml = hasPhoto ?
-                    `<img src="${v.photo_url}" alt="${v.name}" onerror="this.parentElement.innerHTML='<span class=\\'no-photo\\'>${initial}</span>'" />` :
-                    `<span class="no-photo">${initial}</span>`;
-
-                const name = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
-                const id = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
-                const house = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
-
-                container.innerHTML += `
-                    <div class="result-card" onclick="openModal(${v.id})">
-                        <div class="card-photo">${photoHtml}</div>
-                        <div class="card-body">
-                            <div class="card-name">${name}</div>
-                            <div class="card-detail"><i class="fas fa-id-card"></i> ${id}</div>
-                            <div class="card-detail"><i class="fas fa-home"></i> ${house}</div>
-                            <div class="card-badges">
-                                ${v.age ? `<span class="badge">${v.age}y</span>` : ''}
-                                ${v.party ? `<span class="badge">${v.party}</span>` : ''}
-                                ${v.vote_status ? `<span class="badge">${v.vote_status}</span>` : ''}
-                            </div>
-                            <div class="card-id">ID ${v.id}</div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML += `</div>`;
+        // ============================================================
+        // VIEW
+        // ============================================================
+        function setView(view) {
+            currentView = view;
+            var btns = document.querySelectorAll('.view-toggle button');
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].classList.toggle('active', btns[i].dataset.view === view);
+            }
+            applyFilters();
         }
 
-        // ============================================
+        // ============================================================
         // MODAL
-        // ============================================
+        // ============================================================
         function openModal(id) {
-            const voter = allVoters.find(v => v.id === id);
+            var voter = null;
+            for (var i = 0; i < allVoters.length; i++) {
+                if (allVoters[i].id === id) { voter = allVoters[i]; break; }
+            }
             if (!voter) return;
 
             currentModalVoter = voter;
+            $('modalName').textContent = voter.name || 'Voter';
 
-            document.getElementById('modalName').textContent = voter.name || 'Voter';
-
-            // Photo
-            const photoContainer = document.getElementById('modalPhoto');
+            var photoContainer = $('modalPhoto');
             if (voter.photo_url && voter.photo_url.length > 0) {
-                photoContainer.innerHTML = `<img src="${voter.photo_url}" alt="${voter.name}" onerror="this.innerHTML='<div class=\\'no-photo\\'>👤</div>'" />`;
+                photoContainer.innerHTML = '<img src="' + voter.photo_url + '" alt="' + voter.name + '" onerror="this.innerHTML=\'<div class=\\"no-photo\\">👤</div>\'" />';
             } else {
-                const initial = (voter.name || 'U').charAt(0).toUpperCase();
-                photoContainer.innerHTML = `<div class="no-photo">${initial}</div>`;
+                var initial = (voter.name || 'U').charAt(0).toUpperCase();
+                photoContainer.innerHTML = '<div class="no-photo">' + initial + '</div>';
             }
 
-            // Info
-            document.getElementById('modalId').textContent = voter.national_id || '—';
-            document.getElementById('modalPhone').textContent = voter.phone || '—';
-            document.getElementById('modalHouse').textContent = voter.house || '—';
-            document.getElementById('modalAge').textContent = voter.age || '—';
-            document.getElementById('modalGender').textContent = voter.sex || '—';
-            document.getElementById('modalParty').textContent = voter.party || '—';
-            document.getElementById('modalStatus').textContent = voter.vote_status || '—';
-            document.getElementById('modalReach').textContent = voter.reach_status || '—';
+            $('modalId').textContent = voter.national_id || '—';
+            $('modalPhone').textContent = voter.phone || '—';
+            $('modalHouse').textContent = voter.house || '—';
+            $('modalGender').textContent = voter.sex || '—';
+            $('modalParty').textContent = voter.party || '—';
+            $('modalStatus').textContent = voter.vote_status || '—';
+            $('modalReach').textContent = voter.reach_status || '—';
 
-            document.getElementById('voterModal').classList.add('open');
+            $('voterModal').classList.add('open');
             document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
-            document.getElementById('voterModal').classList.remove('open');
+            $('voterModal').classList.remove('open');
             document.body.style.overflow = '';
             currentModalVoter = null;
         }
 
         function copyModalVoter() {
             if (!currentModalVoter) return;
-
-            const v = currentModalVoter;
-            const info = `Name: ${v.name}\nID: ${v.national_id}\nPhone: ${v.phone}\nHouse: ${v.house}${v.age ? `\nAge: ${v.age}` : ''}${v.sex ? `\nGender: ${v.sex}` : ''}${v.party ? `\nParty: ${v.party}` : ''}${v.vote_status ? `\nVote Status: ${v.vote_status}` : ''}${v.reach_status ? `\nReach Status: ${v.reach_status}` : ''}`;
+            var v = currentModalVoter;
+            var info = 'Name: ' + v.name +
+                '\nID: ' + v.national_id +
+                '\nPhone: ' + v.phone +
+                '\nHouse: ' + v.house;
+            if (v.sex) info += '\nGender: ' + v.sex;
+            if (v.party) info += '\nParty: ' + v.party;
+            if (v.vote_status) info += '\nVote Status: ' + v.vote_status;
+            if (v.reach_status) info += '\nReach Status: ' + v.reach_status;
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(info).then(() => {
+                navigator.clipboard.writeText(info).then(function() {
                     showToast('Copied to clipboard', 'success');
-                }).catch(() => fallbackCopy(info));
+                }).catch(function() { fallbackCopy(info); });
             } else {
                 fallbackCopy(info);
             }
         }
 
         function fallbackCopy(text) {
-            const ta = document.createElement('textarea');
+            var ta = document.createElement('textarea');
             ta.value = text;
             ta.style.position = 'fixed';
             ta.style.opacity = '0';
@@ -1196,72 +1115,71 @@
             ta.remove();
         }
 
-        // ============================================
-        // CLEAR SEARCH
-        // ============================================
+        // ============================================================
+        // CLEAR
+        // ============================================================
         function clearSearch() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('clearBtn').classList.remove('show');
-            renderResults(allVoters, '');
-            document.getElementById('resultCount').textContent = allVoters.length;
-            document.getElementById('searchInput').focus();
+            searchInput.value = '';
+            clearBtn.classList.remove('show');
+            applyFilters();
+            searchInput.focus();
         }
 
-        // ============================================
+        // ============================================================
         // TOAST
-        // ============================================
-        function showToast(msg, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const existing = container.querySelector('.toast');
+        // ============================================================
+        function showToast(msg, type) {
+            if (type === undefined) type = 'info';
+            var container = $('toastContainer');
+            var existing = container.querySelector('.toast');
             if (existing) existing.remove();
 
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
+            var toast = document.createElement('div');
+            toast.className = 'toast ' + type;
             toast.textContent = msg;
             container.appendChild(toast);
 
-            setTimeout(() => {
+            setTimeout(function() {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateX(-50%) translateY(20px)';
-                setTimeout(() => toast.remove(), 300);
+                setTimeout(function() { toast.remove(); }, 300);
             }, 2500);
         }
 
-        // ============================================
-        // KEYBOARD SHORTCUTS
-        // ============================================
+        // ============================================================
+        // KEYBOARD
+        // ============================================================
         document.addEventListener('keydown', function(e) {
             if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
-                const active = document.activeElement;
+                var active = document.activeElement;
                 if (active && active.tagName !== 'INPUT') {
                     e.preventDefault();
-                    document.getElementById('searchInput').focus();
+                    searchInput.focus();
                 }
             }
             if (e.key === 'Escape') {
-                if (document.getElementById('voterModal').classList.contains('open')) {
+                if ($('voterModal').classList.contains('open')) {
                     closeModal();
-                } else if (document.getElementById('searchInput').value) {
+                } else if (searchInput.value) {
                     clearSearch();
                 } else {
-                    document.getElementById('searchInput').blur();
+                    searchInput.blur();
                 }
             }
         });
 
         // Close modal on outside click
-        document.getElementById('voterModal').addEventListener('click', function(e) {
+        $('voterModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
         });
 
-        // ============================================
+        // ============================================================
         // INIT
-        // ============================================
+        // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            const input = document.getElementById('searchInput');
-            input.addEventListener('input', performSearch);
-
-            setTimeout(() => input.focus(), 400);
+            searchInput.addEventListener('input', performSearch);
+            partyFilter.addEventListener('change', applyFilters);
+            setTimeout(function() { searchInput.focus(); }, 400);
             loadData();
         });
     </script>
