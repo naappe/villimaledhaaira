@@ -9,6 +9,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
+        /* ============================================
+           RESET
+           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -26,6 +29,9 @@
             align-items: center;
         }
 
+        /* ============================================
+           HEADER
+           ============================================ */
         .header {
             width: 100%;
             max-width: 800px;
@@ -57,6 +63,9 @@
             font-weight: 400;
         }
 
+        /* ============================================
+           SEARCH BOX
+           ============================================ */
         .search-box {
             width: 100%;
             max-width: 800px;
@@ -117,6 +126,9 @@
             color: #1E293B;
         }
 
+        /* ============================================
+           TOOLBAR
+           ============================================ */
         .toolbar {
             width: 100%;
             max-width: 800px;
@@ -189,6 +201,9 @@
             box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
+        /* ============================================
+           LIST VIEW
+           ============================================ */
         .results-list {
             width: 100%;
             max-width: 800px;
@@ -222,7 +237,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             color: #7C3AED;
             flex-shrink: 0;
@@ -283,6 +298,9 @@
             color: #64748B;
         }
 
+        /* ============================================
+           GRID VIEW
+           ============================================ */
         .results-grid {
             width: 100%;
             max-width: 800px;
@@ -379,6 +397,9 @@
             margin-top: 4px;
         }
 
+        /* ============================================
+           MODAL
+           ============================================ */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -535,6 +556,9 @@
             background: #E2E8F0;
         }
 
+        /* ============================================
+           EMPTY STATE
+           ============================================ */
         .empty {
             text-align: center;
             padding: 60px 20px;
@@ -565,6 +589,9 @@
             color: #94A3B8;
         }
 
+        /* ============================================
+           LOADING
+           ============================================ */
         .loading {
             text-align: center;
             padding: 60px 20px;
@@ -586,6 +613,9 @@
             to { transform: rotate(360deg); }
         }
 
+        /* ============================================
+           HIGHLIGHT
+           ============================================ */
         .highlight {
             background: #EDE9FE;
             color: #6D28D9;
@@ -594,6 +624,9 @@
             font-weight: 600;
         }
 
+        /* ============================================
+           TOAST
+           ============================================ */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -621,6 +654,9 @@
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
         @media (max-width: 600px) {
             body { padding: 12px; }
             .header .brand { font-size: 16px; }
@@ -785,16 +821,21 @@
         var currentModalVoter = null;
         var searchTimeout = null;
         var currentPartyFilter = 'all';
+        var isLoading = false;
 
         // ============================================================
-        // DOM REFS
+        // DOM HELPERS
         // ============================================================
-        var $ = function(id) { return document.getElementById(id); };
-        var searchInput = $('searchInput');
-        var resultsContainer = $('resultsContainer');
-        var resultCount = $('resultCount');
-        var clearBtn = $('clearBtn');
-        var partyFilter = $('partyFilter');
+        function getEl(id) {
+            var el = document.getElementById(id);
+            if (!el) console.warn('Element not found:', id);
+            return el;
+        }
+
+        function setText(id, text) {
+            var el = getEl(id);
+            if (el) el.textContent = text;
+        }
 
         // ============================================================
         // SUPABASE
@@ -807,7 +848,9 @@
                     supabaseClient = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
                     return true;
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                console.warn('Supabase init failed:', e.message);
+            }
             return false;
         }
 
@@ -854,12 +897,16 @@
         // LOAD DATA
         // ============================================================
         async function loadData() {
+            if (isLoading) return;
+            isLoading = true;
+
             try {
                 if (!supabaseClient) initSupabase();
 
                 if (!supabaseClient) {
                     allVoters = getSampleData();
                     renderResults(allVoters);
+                    isLoading = false;
                     return;
                 }
 
@@ -869,8 +916,18 @@
                 var size = 1000;
 
                 while (true) {
-                    var result = await supabaseClient.from(table).select('*').order('id', { ascending: true }).range(from, from + size - 1);
-                    if (result.error || !result.data || result.data.length === 0) break;
+                    var result = await supabaseClient
+                        .from(table)
+                        .select('*')
+                        .order('id', { ascending: true })
+                        .range(from, from + size - 1);
+
+                    if (result.error) {
+                        console.warn('Supabase error:', result.error.message);
+                        break;
+                    }
+                    if (!result.data || result.data.length === 0) break;
+
                     data = data.concat(result.data);
                     if (result.data.length < size) break;
                     from += size;
@@ -880,20 +937,24 @@
                 renderResults(allVoters);
 
             } catch (e) {
+                console.error('Load error:', e);
                 allVoters = getSampleData();
                 renderResults(allVoters);
             }
+
+            isLoading = false;
         }
 
         // ============================================================
         // FILTERS
         // ============================================================
         function applyFilters() {
-            currentPartyFilter = partyFilter.value;
-            var query = searchInput.value.trim();
+            currentPartyFilter = getEl('partyFilter')?.value || 'all';
+            var query = getEl('searchInput')?.value?.trim() || '';
             var results = getFiltered(query);
             renderResults(results, query);
-            resultCount.textContent = results.length;
+            var countEl = getEl('resultCount');
+            if (countEl) countEl.textContent = results.length;
         }
 
         // ============================================================
@@ -909,119 +970,187 @@
                 });
             }
 
-            // Search filter
             if (!query) return voters;
 
-            var q = query.toLowerCase().split(/\s+/).filter(function(w) { return w.length > 0; });
-            return voters.filter(function(v) {
+            var q = query.toLowerCase().trim();
+            var qWords = q.split(/\s+/).filter(function(w) { return w.length > 0; });
+
+            // EXACT MATCH
+            var exactMatches = voters.filter(function(v) {
+                var name = (v.name || '').toLowerCase();
+                return name === q;
+            });
+
+            // WORD MATCH
+            var wordMatches = voters.filter(function(v) {
+                if (exactMatches.indexOf(v) !== -1) return false;
                 var name = (v.name || '').toLowerCase();
                 var id = (v.national_id || '').toLowerCase();
                 var house = (v.house || '').toLowerCase();
                 var phone = (v.phone || '').toLowerCase();
-                for (var i = 0; i < q.length; i++) {
-                    if (name.indexOf(q[i]) !== -1 || id.indexOf(q[i]) !== -1 || house.indexOf(q[i]) !== -1 || phone.indexOf(q[i]) !== -1) {
+
+                for (var i = 0; i < qWords.length; i++) {
+                    var word = qWords[i];
+                    if (name.indexOf(word) !== -1 ||
+                        id.indexOf(word) !== -1 ||
+                        house.indexOf(word) !== -1 ||
+                        phone.indexOf(word) !== -1) {
                         return true;
                     }
                 }
                 return false;
             });
+
+            // Combine exact + word matches (no partial to avoid showing other houses)
+            var combined = exactMatches.concat(wordMatches);
+
+            // Remove duplicates
+            var unique = [];
+            for (var i = 0; i < combined.length; i++) {
+                if (unique.indexOf(combined[i]) === -1) {
+                    unique.push(combined[i]);
+                }
+            }
+
+            return unique;
         }
 
         function performSearch() {
-            var query = searchInput.value.trim();
-            clearBtn.classList.toggle('show', query.length > 0);
+            var query = getEl('searchInput')?.value?.trim() || '';
+            var clearBtn = getEl('clearBtn');
+
+            if (clearBtn) {
+                clearBtn.classList.toggle('show', query.length > 0);
+            }
+
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(function() {
                 var results = getFiltered(query);
                 renderResults(results, query);
-                resultCount.textContent = results.length;
+                var countEl = getEl('resultCount');
+                if (countEl) countEl.textContent = results.length;
             }, 200);
         }
 
         // ============================================================
-        // RENDER
+        // RENDER - AVATAR
+        // ============================================================
+        function getAvatarHtml(voter) {
+            var initial = (voter.name || 'U').charAt(0).toUpperCase();
+
+            if (voter.photo_url && voter.photo_url.length > 0) {
+                return '<img src="' + voter.photo_url + '" alt="' + voter.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<span class=\\"no-photo\\">' + initial + '</span>\'" />';
+            }
+
+            return '<span class="no-photo">' + initial + '</span>';
+        }
+
+        // ============================================================
+        // RENDER - HIGHLIGHT
         // ============================================================
         function highlight(text, query) {
             if (!query || !text) return text || '';
+
             var words = query.split(/\s+/).filter(function(w) { return w.length > 0; });
             var result = text;
+
             for (var i = 0; i < words.length; i++) {
                 var regex = new RegExp('(' + words[i].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
                 result = result.replace(regex, '<span class="highlight">$1</span>');
             }
+
             return result;
         }
 
+        // ============================================================
+        // RENDER - RESULTS
+        // ============================================================
         function renderResults(voters, query) {
-            resultCount.textContent = voters.length;
+            var container = getEl('resultsContainer');
+            var countEl = getEl('resultCount');
+
+            if (!container) return;
+
+            if (countEl) countEl.textContent = voters.length;
+
             if (voters.length === 0) {
-                resultsContainer.innerHTML = '<div class="empty"><i class="fas fa-users"></i><h3>No voters found</h3><p>Try a different search term</p></div>';
+                container.innerHTML = '<div class="empty"><i class="fas fa-users"></i><h3>No voters found</h3><p>Try a different search term</p></div>';
                 return;
             }
-            resultsContainer.innerHTML = (currentView === 'list') ? renderList(voters, query) : renderGrid(voters, query);
+
+            if (currentView === 'list') {
+                container.innerHTML = renderListView(voters, query);
+            } else {
+                container.innerHTML = renderGridView(voters, query);
+            }
         }
 
-        function renderList(voters, query) {
+        // ============================================================
+        // RENDER - LIST VIEW
+        // ============================================================
+        function renderListView(voters, query) {
             var html = '<div class="results-list">';
+
             for (var i = 0; i < voters.length; i++) {
                 var v = voters[i];
-                var initial = (v.name || 'U').charAt(0).toUpperCase();
-                var hasPhoto = v.photo_url && v.photo_url.length > 0;
-                var photoHtml = hasPhoto ?
-                    '<img src="' + v.photo_url + '" alt="' + v.name + '" onerror="this.parentElement.innerHTML=\'<span class=\\"no-photo\\">' + initial + '</span>\'" />' :
-                    '<span class="no-photo">' + initial + '</span>';
+                var photoHtml = getAvatarHtml(v);
 
                 var name = query ? highlight(v.name || 'Unknown', query) : (v.name || 'Unknown');
                 var id = query ? highlight(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
                 var house = query ? highlight(v.house || 'N/A', query) : (v.house || 'N/A');
                 var phone = query ? highlight(v.phone || 'N/A', query) : (v.phone || 'N/A');
 
-                html +=
-                    '<div class="result-item" onclick="openModal(' + v.id + ')">' +
-                    '<div class="avatar">' + photoHtml + '</div>' +
-                    '<div class="info">' +
-                    '<div class="name">' + name + '</div>' +
-                    '<div class="detail">' +
-                    '<span><i class="fas fa-id-card"></i> ' + id + '</span>' +
-                    '<span class="sep">·</span>' +
-                    '<span><i class="fas fa-phone"></i> ' + phone + '</span>' +
-                    '<span class="sep">·</span>' +
-                    '<span><i class="fas fa-home"></i> ' + house + '</span>';
+                html += '<div class="result-item" onclick="openModal(' + v.id + ')">';
+                html += '<div class="avatar">' + photoHtml + '</div>';
+                html += '<div class="info">';
+                html += '<div class="name">' + name + '</div>';
+                html += '<div class="detail">';
+                html += '<span><i class="fas fa-id-card"></i> ' + id + '</span>';
+                html += '<span class="sep">·</span>';
+                html += '<span><i class="fas fa-phone"></i> ' + phone + '</span>';
+                html += '<span class="sep">·</span>';
+                html += '<span><i class="fas fa-home"></i> ' + house + '</span>';
                 if (v.party) html += '<span class="badge">' + v.party + '</span>';
                 html += '</div></div></div>';
             }
+
             html += '</div>';
             return html;
         }
 
-        function renderGrid(voters, query) {
+        // ============================================================
+        // RENDER - GRID VIEW
+        // ============================================================
+        function renderGridView(voters, query) {
             var html = '<div class="results-grid">';
+
             for (var i = 0; i < voters.length; i++) {
                 var v = voters[i];
                 var initial = (v.name || 'U').charAt(0).toUpperCase();
+
                 var hasPhoto = v.photo_url && v.photo_url.length > 0;
                 var photoHtml = hasPhoto ?
-                    '<img src="' + v.photo_url + '" alt="' + v.name + '" onerror="this.parentElement.innerHTML=\'<span class=\\"no-photo\\">' + initial + '</span>\'" />' :
+                    '<img src="' + v.photo_url + '" alt="' + v.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<span class=\\"no-photo\\">' + initial + '</span>\'" />' :
                     '<span class="no-photo">' + initial + '</span>';
 
                 var name = query ? highlight(v.name || 'Unknown', query) : (v.name || 'Unknown');
                 var id = query ? highlight(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
                 var house = query ? highlight(v.house || 'N/A', query) : (v.house || 'N/A');
 
-                html +=
-                    '<div class="result-card" onclick="openModal(' + v.id + ')">' +
-                    '<div class="card-photo">' + photoHtml + '</div>' +
-                    '<div class="card-body">' +
-                    '<div class="card-name">' + name + '</div>' +
-                    '<div class="card-detail"><i class="fas fa-id-card"></i> ' + id + '</div>' +
-                    '<div class="card-detail"><i class="fas fa-home"></i> ' + house + '</div>' +
-                    '<div class="card-badges">';
+                html += '<div class="result-card" onclick="openModal(' + v.id + ')">';
+                html += '<div class="card-photo">' + photoHtml + '</div>';
+                html += '<div class="card-body">';
+                html += '<div class="card-name">' + name + '</div>';
+                html += '<div class="card-detail"><i class="fas fa-id-card"></i> ' + id + '</div>';
+                html += '<div class="card-detail"><i class="fas fa-home"></i> ' + house + '</div>';
+                html += '<div class="card-badges">';
                 if (v.party) html += '<span class="badge">' + v.party + '</span>';
                 if (v.vote_status) html += '<span class="badge">' + v.vote_status + '</span>';
-                html += '</div>' +
-                    '<div class="card-id">ID ' + v.id + '</div>' +
-                    '</div></div>';
+                html += '</div>';
+                html += '<div class="card-id">ID ' + v.id + '</div>';
+                html += '</div></div>';
             }
+
             html += '</div>';
             return html;
         }
@@ -1044,41 +1173,55 @@
         function openModal(id) {
             var voter = null;
             for (var i = 0; i < allVoters.length; i++) {
-                if (allVoters[i].id === id) { voter = allVoters[i]; break; }
+                if (allVoters[i].id === id) {
+                    voter = allVoters[i];
+                    break;
+                }
             }
             if (!voter) return;
 
             currentModalVoter = voter;
-            $('modalName').textContent = voter.name || 'Voter';
 
-            var photoContainer = $('modalPhoto');
-            if (voter.photo_url && voter.photo_url.length > 0) {
-                photoContainer.innerHTML = '<img src="' + voter.photo_url + '" alt="' + voter.name + '" onerror="this.innerHTML=\'<div class=\\"no-photo\\">👤</div>\'" />';
-            } else {
-                var initial = (voter.name || 'U').charAt(0).toUpperCase();
-                photoContainer.innerHTML = '<div class="no-photo">' + initial + '</div>';
+            var nameEl = getEl('modalName');
+            if (nameEl) nameEl.textContent = voter.name || 'Voter';
+
+            var photoContainer = getEl('modalPhoto');
+            if (photoContainer) {
+                if (voter.photo_url && voter.photo_url.length > 0) {
+                    photoContainer.innerHTML = '<img src="' + voter.photo_url + '" alt="' + voter.name + '" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'<div class=\\"no-photo\\">' + (voter.name ? voter.name.charAt(0).toUpperCase() : '👤') + '</div>\'" />';
+                } else {
+                    var initial = (voter.name || 'U').charAt(0).toUpperCase();
+                    photoContainer.innerHTML = '<div class="no-photo">' + initial + '</div>';
+                }
             }
 
-            $('modalId').textContent = voter.national_id || '—';
-            $('modalPhone').textContent = voter.phone || '—';
-            $('modalHouse').textContent = voter.house || '—';
-            $('modalGender').textContent = voter.sex || '—';
-            $('modalParty').textContent = voter.party || '—';
-            $('modalStatus').textContent = voter.vote_status || '—';
-            $('modalReach').textContent = voter.reach_status || '—';
+            setText('modalId', voter.national_id || '—');
+            setText('modalPhone', voter.phone || '—');
+            setText('modalHouse', voter.house || '—');
+            setText('modalGender', voter.sex || '—');
+            setText('modalParty', voter.party || '—');
+            setText('modalStatus', voter.vote_status || '—');
+            setText('modalReach', voter.reach_status || '—');
 
-            $('voterModal').classList.add('open');
-            document.body.style.overflow = 'hidden';
+            var modal = getEl('voterModal');
+            if (modal) {
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+            }
         }
 
         function closeModal() {
-            $('voterModal').classList.remove('open');
-            document.body.style.overflow = '';
+            var modal = getEl('voterModal');
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
             currentModalVoter = null;
         }
 
         function copyModalVoter() {
             if (!currentModalVoter) return;
+
             var v = currentModalVoter;
             var info = 'Name: ' + v.name +
                 '\nID: ' + v.national_id +
@@ -1092,7 +1235,9 @@
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(info).then(function() {
                     showToast('Copied to clipboard', 'success');
-                }).catch(function() { fallbackCopy(info); });
+                }).catch(function() {
+                    fallbackCopy(info);
+                });
             } else {
                 fallbackCopy(info);
             }
@@ -1119,10 +1264,12 @@
         // CLEAR
         // ============================================================
         function clearSearch() {
-            searchInput.value = '';
-            clearBtn.classList.remove('show');
+            var input = getEl('searchInput');
+            var clearBtn = getEl('clearBtn');
+            if (input) input.value = '';
+            if (clearBtn) clearBtn.classList.remove('show');
             applyFilters();
-            searchInput.focus();
+            if (input) input.focus();
         }
 
         // ============================================================
@@ -1130,7 +1277,10 @@
         // ============================================================
         function showToast(msg, type) {
             if (type === undefined) type = 'info';
-            var container = $('toastContainer');
+
+            var container = getEl('toastContainer');
+            if (!container) return;
+
             var existing = container.querySelector('.toast');
             if (existing) existing.remove();
 
@@ -1142,44 +1292,66 @@
             setTimeout(function() {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateX(-50%) translateY(20px)';
-                setTimeout(function() { toast.remove(); }, 300);
+                setTimeout(function() {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 300);
             }, 2500);
         }
 
         // ============================================================
-        // KEYBOARD
+        // KEYBOARD SHORTCUTS
         // ============================================================
         document.addEventListener('keydown', function(e) {
             if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
                 var active = document.activeElement;
                 if (active && active.tagName !== 'INPUT') {
                     e.preventDefault();
-                    searchInput.focus();
+                    var input = getEl('searchInput');
+                    if (input) input.focus();
                 }
             }
+
             if (e.key === 'Escape') {
-                if ($('voterModal').classList.contains('open')) {
+                var modal = getEl('voterModal');
+                if (modal && modal.classList.contains('open')) {
                     closeModal();
-                } else if (searchInput.value) {
-                    clearSearch();
                 } else {
-                    searchInput.blur();
+                    var input = getEl('searchInput');
+                    if (input && input.value) {
+                        clearSearch();
+                    } else if (input) {
+                        input.blur();
+                    }
                 }
             }
         });
 
         // Close modal on outside click
-        $('voterModal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
-        });
+        var modal = getEl('voterModal');
+        if (modal) {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+        }
 
         // ============================================================
         // INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
-            searchInput.addEventListener('input', performSearch);
-            partyFilter.addEventListener('change', applyFilters);
-            setTimeout(function() { searchInput.focus(); }, 400);
+            var input = getEl('searchInput');
+            if (input) {
+                input.addEventListener('input', performSearch);
+            }
+
+            var partyFilterEl = getEl('partyFilter');
+            if (partyFilterEl) {
+                partyFilterEl.addEventListener('change', applyFilters);
+            }
+
+            setTimeout(function() {
+                if (input) input.focus();
+            }, 400);
+
             loadData();
         });
     </script>
