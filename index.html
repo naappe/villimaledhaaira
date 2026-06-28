@@ -20,7 +20,7 @@
             background: #F5F3FF;
             color: #1E293B;
             min-height: 100vh;
-            padding: 24px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,12 +28,12 @@
 
         .header {
             width: 100%;
-            max-width: 720px;
+            max-width: 800px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-            padding-bottom: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
             border-bottom: 2px solid #E2E8F0;
         }
 
@@ -59,7 +59,7 @@
 
         .search-box {
             width: 100%;
-            max-width: 720px;
+            max-width: 800px;
             position: relative;
             margin-bottom: 12px;
         }
@@ -117,15 +117,21 @@
             color: #1E293B;
         }
 
-        .stats {
+        /* TOOLBAR */
+        .toolbar {
             width: 100%;
-            max-width: 720px;
-            font-size: 13px;
-            color: #94A3B8;
-            padding: 4px 4px 12px 4px;
+            max-width: 800px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 4px 4px 12px 4px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            font-size: 13px;
+            color: #94A3B8;
         }
 
         .stats strong {
@@ -133,11 +139,12 @@
             font-weight: 600;
         }
 
-        .stats .hint {
+        .toolbar .hint {
             font-size: 12px;
+            color: #94A3B8;
         }
 
-        .stats .hint kbd {
+        .toolbar .hint kbd {
             background: #F1F5F9;
             padding: 2px 8px;
             border-radius: 4px;
@@ -146,92 +153,124 @@
             font-family: inherit;
         }
 
-        .results {
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: #F1F5F9;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .view-toggle button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: #94A3B8;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .view-toggle button:hover {
+            color: #1E293B;
+        }
+
+        .view-toggle button.active {
+            background: white;
+            color: #7C3AED;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        /* LIST VIEW */
+        .results-list {
             width: 100%;
-            max-width: 720px;
+            max-width: 800px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
-        .result {
+        .result-item {
             background: white;
             border-radius: 12px;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 1px solid #E2E8F0;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             transition: 0.2s;
-            cursor: default;
+            cursor: pointer;
             animation: fadeIn 0.3s ease;
         }
 
-        .result:hover {
+        .result-item:hover {
             border-color: #7C3AED;
             box-shadow: 0 4px 16px rgba(124, 58, 237, 0.08);
+            transform: translateY(-1px);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .result .avatar {
-            width: 44px;
-            height: 44px;
+        .result-item .avatar {
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: #EDE9FE;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 600;
             color: #7C3AED;
             flex-shrink: 0;
-            text-transform: uppercase;
             border: 2px solid #E2E8F0;
+            overflow: hidden;
         }
 
-        .result .avatar img {
+        .result-item .avatar img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
         }
 
-        .result .info {
+        .result-item .avatar .no-photo {
+            font-size: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-item .info {
             flex: 1;
             min-width: 0;
         }
 
-        .result .name {
+        .result-item .name {
             font-weight: 600;
             font-size: 15px;
             color: #1E293B;
         }
 
-        .result .detail {
+        .result-item .detail {
             font-size: 13px;
             color: #64748B;
             display: flex;
             flex-wrap: wrap;
-            gap: 4px 16px;
+            gap: 4px 14px;
             margin-top: 2px;
         }
 
-        .result .detail i {
+        .result-item .detail i {
             width: 14px;
             color: #7C3AED;
             font-size: 12px;
             margin-right: 2px;
         }
 
-        .result .detail .sep {
+        .result-item .detail .sep {
             color: #E2E8F0;
         }
 
-        .result .detail .badge {
+        .result-item .detail .badge {
             background: #F1F5F9;
             padding: 0 10px;
             border-radius: 20px;
@@ -240,29 +279,265 @@
             color: #64748B;
         }
 
-        .result .copy {
-            padding: 6px 16px;
+        /* GRID VIEW */
+        .results-grid {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+            transition: 0.2s;
+            cursor: pointer;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-card:hover {
+            border-color: #7C3AED;
+            box-shadow: 0 4px 16px rgba(124, 58, 237, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .result-card .card-photo {
+            width: 100%;
+            height: 160px;
+            background: #EDE9FE;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .result-card .card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .result-card .card-photo .no-photo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #7C3AED;
+            text-transform: uppercase;
+        }
+
+        .result-card .card-body {
+            padding: 12px 14px 14px;
+        }
+
+        .result-card .card-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1E293B;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result-card .card-detail {
+            font-size: 12px;
+            color: #64748B;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        .result-card .card-detail i {
+            width: 12px;
+            color: #7C3AED;
+            margin-right: 2px;
+        }
+
+        .result-card .card-badges {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+
+        .result-card .card-badges .badge {
+            background: #F1F5F9;
+            padding: 1px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            color: #64748B;
+        }
+
+        .result-card .card-id {
+            font-size: 10px;
+            color: #94A3B8;
+            margin-top: 4px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal .modal-header {
+            padding: 16px 20px 12px;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal .modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .modal .modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #94A3B8;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .modal .modal-header .close-btn:hover {
+            background: #F1F5F9;
+            color: #1E293B;
+        }
+
+        .modal .modal-photo {
+            padding: 20px;
+            text-align: center;
+            background: #F5F3FF;
+        }
+
+        .modal .modal-photo img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .modal .modal-photo .no-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #EDE9FE;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 700;
+            color: #7C3AED;
+            text-transform: uppercase;
+            margin: 0 auto;
+            border: 4px solid white;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .modal .modal-info {
+            padding: 16px 20px 20px;
+        }
+
+        .modal .modal-info .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .modal .modal-info .row:last-child {
+            border-bottom: none;
+        }
+
+        .modal .modal-info .label {
+            color: #94A3B8;
+            font-size: 13px;
+        }
+
+        .modal .modal-info .value {
+            font-weight: 500;
+            font-size: 13px;
+            color: #1E293B;
+            text-align: right;
+        }
+
+        .modal .modal-actions {
+            padding: 12px 20px 20px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .modal .modal-actions button {
+            flex: 1;
+            padding: 10px;
             border: none;
             border-radius: 8px;
-            background: #7C3AED;
-            color: white;
             font-weight: 500;
             font-size: 13px;
             cursor: pointer;
             transition: 0.2s;
-            flex-shrink: 0;
         }
 
-        .result .copy:hover {
+        .modal .modal-actions .btn-copy {
+            background: #7C3AED;
+            color: white;
+        }
+
+        .modal .modal-actions .btn-copy:hover {
             background: #6D28D9;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
         }
 
-        .result .copy:active {
-            transform: scale(0.95);
+        .modal .modal-actions .btn-close-modal {
+            background: #F1F5F9;
+            color: #64748B;
         }
 
+        .modal .modal-actions .btn-close-modal:hover {
+            background: #E2E8F0;
+        }
+
+        /* EMPTY STATE */
         .empty {
             text-align: center;
             padding: 60px 20px;
@@ -270,6 +545,8 @@
             background: white;
             border-radius: 12px;
             border: 1px solid #E2E8F0;
+            width: 100%;
+            max-width: 800px;
         }
 
         .empty i {
@@ -295,6 +572,8 @@
             text-align: center;
             padding: 60px 20px;
             color: #94A3B8;
+            width: 100%;
+            max-width: 800px;
         }
 
         .loading i {
@@ -308,6 +587,11 @@
         @keyframes spin {
             from { transform: rotate(0); }
             to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .highlight {
@@ -329,22 +613,23 @@
             border-radius: 10px;
             font-size: 14px;
             font-weight: 500;
-            z-index: 999;
+            z-index: 2000;
             box-shadow: 0 8px 32px rgba(0,0,0,0.2);
             max-width: 92%;
             text-align: center;
-            animation: slideUp 0.3s ease;
+            animation: slideUpToast 0.3s ease;
             border-left: 4px solid #7C3AED;
         }
 
         .toast.success { border-left-color: #22C55E; }
         .toast.error { border-left-color: #EF4444; }
 
-        @keyframes slideUp {
+        @keyframes slideUpToast {
             from { opacity: 0; transform: translateX(-50%) translateY(20px); }
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
+        /* RESPONSIVE */
         @media (max-width: 600px) {
             body { padding: 12px; }
             .header .brand { font-size: 16px; }
@@ -352,19 +637,30 @@
             .search-box input { height: 48px; font-size: 14px; padding: 0 40px 0 40px; }
             .search-box .icon { font-size: 15px; left: 14px; }
             .search-box .clear { font-size: 17px; right: 14px; }
-            .stats { font-size: 12px; flex-direction: column; align-items: flex-start; gap: 4px; }
-            .stats .hint { display: none; }
-            .result { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
-            .result .avatar { width: 38px; height: 38px; font-size: 14px; }
-            .result .name { font-size: 14px; }
-            .result .detail { font-size: 12px; gap: 2px 10px; }
-            .result .detail .badge { font-size: 10px; padding: 0 8px; }
-            .result .copy { width: 100%; text-align: center; padding: 8px; }
-            .empty { padding: 40px 16px; }
-            .empty i { font-size: 36px; }
-            .empty h3 { font-size: 16px; }
+            .toolbar { flex-direction: column; align-items: stretch; gap: 8px; }
+            .toolbar .hint { display: none; }
+            .stats { font-size: 12px; }
+            .result-item { padding: 12px 14px; flex-wrap: wrap; gap: 10px; }
+            .result-item .avatar { width: 40px; height: 40px; font-size: 15px; }
+            .result-item .name { font-size: 14px; }
+            .result-item .detail { font-size: 12px; gap: 2px 10px; }
+            .results-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+            .result-card .card-photo { height: 120px; }
+            .result-card .card-photo .no-photo { font-size: 36px; }
+            .result-card .card-body { padding: 10px 12px 12px; }
+            .result-card .card-name { font-size: 13px; }
+            .modal { max-width: 100%; margin: 10px; }
+            .modal .modal-photo img { width: 80px; height: 80px; }
+            .modal .modal-photo .no-photo { width: 80px; height: 80px; font-size: 32px; }
+            .modal .modal-info .row { padding: 6px 0; font-size: 13px; }
+            .modal .modal-actions { flex-direction: column; }
         }
 
+        @media (min-width: 601px) and (max-width: 900px) {
+            .results-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+        }
+
+        /* DARK MODE */
         @media (prefers-color-scheme: dark) {
             body { background: #0F0A1A; color: #F1F5F9; }
             .header { border-bottom-color: #2D3A4F; }
@@ -378,19 +674,44 @@
             .search-box .clear:hover { color: #F1F5F9; }
             .stats { color: #64748B; }
             .stats strong { color: #F1F5F9; }
-            .stats .hint kbd { background: #1A1430; border-color: #2D3A4F; color: #94A3B8; }
-            .result { background: #1A1430; border-color: #2D3A4F; }
-            .result:hover { border-color: #7C3AED; }
-            .result .avatar { background: rgba(124, 58, 237, 0.2); border-color: #2D3A4F; color: #A78BFA; }
-            .result .name { color: #F1F5F9; }
-            .result .detail { color: #94A3B8; }
-            .result .detail i { color: #A78BFA; }
-            .result .detail .sep { color: #2D3A4F; }
-            .result .detail .badge { background: #0F0A1A; color: #94A3B8; }
+            .toolbar .hint kbd { background: #1A1430; border-color: #2D3A4F; color: #94A3B8; }
+            .view-toggle { background: #1A1430; }
+            .view-toggle button { color: #64748B; }
+            .view-toggle button:hover { color: #F1F5F9; }
+            .view-toggle button.active { background: #2D3A4F; color: #A78BFA; }
+            .result-item { background: #1A1430; border-color: #2D3A4F; }
+            .result-item:hover { border-color: #7C3AED; }
+            .result-item .avatar { background: rgba(124, 58, 237, 0.2); border-color: #2D3A4F; color: #A78BFA; }
+            .result-item .name { color: #F1F5F9; }
+            .result-item .detail { color: #94A3B8; }
+            .result-item .detail i { color: #A78BFA; }
+            .result-item .detail .sep { color: #2D3A4F; }
+            .result-item .detail .badge { background: #0F0A1A; color: #94A3B8; }
+            .result-card { background: #1A1430; border-color: #2D3A4F; }
+            .result-card:hover { border-color: #7C3AED; }
+            .result-card .card-photo { background: rgba(124, 58, 237, 0.2); }
+            .result-card .card-photo .no-photo { color: #A78BFA; }
+            .result-card .card-name { color: #F1F5F9; }
+            .result-card .card-detail { color: #94A3B8; }
+            .result-card .card-badges .badge { background: #0F0A1A; color: #94A3B8; }
+            .result-card .card-id { color: #64748B; }
             .empty { background: #1A1430; border-color: #2D3A4F; color: #64748B; }
             .empty i { color: #2D3A4F; }
             .empty h3 { color: #F1F5F9; }
             .empty p { color: #64748B; }
+            .modal { background: #1A1430; }
+            .modal .modal-header { border-bottom-color: #2D3A4F; }
+            .modal .modal-header h2 { color: #F1F5F9; }
+            .modal .modal-header .close-btn { color: #64748B; }
+            .modal .modal-header .close-btn:hover { background: #0F0A1A; color: #F1F5F9; }
+            .modal .modal-photo { background: #0F0A1A; }
+            .modal .modal-photo .no-photo { background: rgba(124, 58, 237, 0.2); color: #A78BFA; }
+            .modal .modal-info .row { border-bottom-color: #0F0A1A; }
+            .modal .modal-info .label { color: #64748B; }
+            .modal .modal-info .value { color: #F1F5F9; }
+            .modal .modal-actions { border-top-color: #2D3A4F; }
+            .modal .modal-actions .btn-close-modal { background: #0F0A1A; color: #94A3B8; }
+            .modal .modal-actions .btn-close-modal:hover { background: #2D3A4F; }
             .toast { background: #1A1430; color: #F1F5F9; border-left-color: #7C3AED; }
             .toast.success { border-left-color: #22C55E; }
             .toast.error { border-left-color: #EF4444; }
@@ -411,23 +732,64 @@
     <!-- SEARCH -->
     <div class="search-box">
         <i class="fas fa-search icon"></i>
-        <input type="text" id="searchInput" placeholder="Search by name, ID, or house..." autofocus />
+        <input type="text" id="searchInput" placeholder="Search by name, ID, house, or phone..." autofocus />
         <button class="clear" id="clearBtn" onclick="clearSearch()">
             <i class="fas fa-times-circle"></i>
         </button>
     </div>
 
-    <!-- STATS -->
-    <div class="stats">
-        <span><strong id="resultCount">0</strong> voters found</span>
-        <span class="hint">Press <kbd>/</kbd> to search · <kbd>Esc</kbd> to clear</span>
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="stats">
+            <strong id="resultCount">0</strong> voters found
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <span class="hint">Press <kbd>/</kbd> · <kbd>Esc</kbd> clear</span>
+            <div class="view-toggle">
+                <button class="active" data-view="list" onclick="setView('list')">
+                    <i class="fas fa-list"></i>
+                </button>
+                <button data-view="grid" onclick="setView('grid')">
+                    <i class="fas fa-th"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- RESULTS -->
-    <div class="results" id="resultsContainer">
+    <div id="resultsContainer">
         <div class="loading">
             <i class="fas fa-spinner"></i>
             Loading voters...
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="voterModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modalName">Voter</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-photo" id="modalPhoto">
+                <div class="no-photo">👤</div>
+            </div>
+            <div class="modal-info" id="modalInfo">
+                <div class="row"><span class="label">National ID</span><span class="value" id="modalId">—</span></div>
+                <div class="row"><span class="label">Phone</span><span class="value" id="modalPhone">—</span></div>
+                <div class="row"><span class="label">House</span><span class="value" id="modalHouse">—</span></div>
+                <div class="row"><span class="label">Age</span><span class="value" id="modalAge">—</span></div>
+                <div class="row"><span class="label">Gender</span><span class="value" id="modalGender">—</span></div>
+                <div class="row"><span class="label">Party</span><span class="value" id="modalParty">—</span></div>
+                <div class="row"><span class="label">Vote Status</span><span class="value" id="modalStatus">—</span></div>
+                <div class="row"><span class="label">Reach Status</span><span class="value" id="modalReach">—</span></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-copy" onclick="copyModalVoter()">
+                    <i class="fas fa-copy"></i> Copy Details
+                </button>
+                <button class="btn-close-modal" onclick="closeModal()">Close</button>
+            </div>
         </div>
     </div>
 
@@ -453,6 +815,8 @@
         // ============================================
         let allVoters = [];
         let searchTimeout = null;
+        let currentView = 'list';
+        let currentModalVoter = null;
 
         // ============================================
         // SUPABASE
@@ -535,27 +899,85 @@
         }
 
         // ============================================
-        // SAMPLE DATA (Fallback)
+        // SAMPLE DATA
         // ============================================
         function useSampleData() {
             const houses = ['H. Orchid', 'H. Rose', 'H. Tulip', 'H. Lotus', 'H. Lily', 'H. Clover', 'H. Daisy', 'H. Palm', 'H. Sunset', 'H. Coral'];
             const names = ['Ahmed Rasheed', 'Fathimath Shazna', 'Mohamed Aslam', 'Nashid Waheed', 'Hussain Nizar', 'Mariyam Shakeela', 'Aishath Rasha', 'Abdulla Saeed'];
+            const photos = [
+                'https://ui-avatars.com/api/?name=Ahmed+Rasheed&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Fathimath+Shazna&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Mohamed+Aslam&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Nashid+Waheed&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Hussain+Nizar&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Mariyam+Shakeela&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Aishath+Rasha&background=7C3AED&color=fff&size=200',
+                'https://ui-avatars.com/api/?name=Abdulla+Saeed&background=7C3AED&color=fff&size=200'
+            ];
+            const parties = ['MDP', 'PNC', 'MDP', 'Other', 'MDP', 'PNC', 'MDP', 'Other'];
+            const statuses = ['will-vote', 'not-vote', 'pending', 'undecided'];
+            const reaches = ['reached', 'not-reached'];
 
             allVoters = [];
 
             for (let i = 0; i < 200; i++) {
+                const idx = i % names.length;
                 allVoters.push({
                     id: i + 1,
-                    name: names[i % names.length] + (i > 7 ? ' ' + (i + 1) : ''),
+                    name: names[idx] + (i > 7 ? ' ' + (i + 1) : ''),
                     national_id: 'A' + String(100000 + i).padStart(6, '0'),
                     house: houses[i % houses.length],
-                    phone: '7' + String(700000 + i).padStart(6, '0')
+                    phone: '7' + String(700000 + i).padStart(6, '0'),
+                    photo_url: photos[idx],
+                    age: 18 + (i % 50),
+                    sex: i % 2 === 0 ? 'M' : 'F',
+                    party: parties[i % parties.length],
+                    vote_status: statuses[i % statuses.length],
+                    reach_status: reaches[i % reaches.length]
                 });
             }
 
             console.log('📊 Sample data loaded: ' + allVoters.length + ' voters');
             renderResults(allVoters, '');
             document.getElementById('resultCount').textContent = allVoters.length;
+        }
+
+        // ============================================
+        // VIEW TOGGLE
+        // ============================================
+        function setView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-toggle button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+            
+            const query = document.getElementById('searchInput').value.trim();
+            const results = getFilteredResults(query);
+            renderResults(results, query);
+        }
+
+        // ============================================
+        // GET FILTERED RESULTS
+        // ============================================
+        function getFilteredResults(query) {
+            if (!query) return allVoters;
+
+            const lowerQuery = query.toLowerCase();
+            const words = lowerQuery.split(/\s+/).filter(w => w.length > 0);
+
+            return allVoters.filter(v => {
+                const name = (v.name || '').toLowerCase();
+                const id = (v.national_id || '').toLowerCase();
+                const house = (v.house || '').toLowerCase();
+                const phone = (v.phone || '').toLowerCase();
+
+                return words.some(word =>
+                    name.includes(word) ||
+                    id.includes(word) ||
+                    house.includes(word) ||
+                    phone.includes(word)
+                );
+            });
         }
 
         // ============================================
@@ -574,25 +996,9 @@
             clearTimeout(searchTimeout);
 
             searchTimeout = setTimeout(() => {
-                if (!query) {
-                    renderResults(allVoters, '');
-                    return;
-                }
-
-                const lowerQuery = query.toLowerCase();
-                const results = allVoters.filter(v => {
-                    const name = (v.name || '').toLowerCase();
-                    const id = (v.national_id || '').toLowerCase();
-                    const house = (v.house || '').toLowerCase();
-                    const phone = (v.phone || '').toLowerCase();
-                    
-                    return name.includes(lowerQuery) || 
-                           id.includes(lowerQuery) || 
-                           house.includes(lowerQuery) ||
-                           phone.includes(lowerQuery);
-                });
-
+                const results = getFilteredResults(query);
                 renderResults(results, query);
+                document.getElementById('resultCount').textContent = results.length;
             }, 200);
         }
 
@@ -601,11 +1007,16 @@
         // ============================================
         function highlightText(text, query) {
             if (!query || !text) return text || '';
-            const idx = text.toLowerCase().indexOf(query.toLowerCase());
-            if (idx === -1) return text;
-            return text.substring(0, idx) + 
-                   '<span class="highlight">' + text.substring(idx, idx + query.length) + '</span>' + 
-                   text.substring(idx + query.length);
+
+            const words = query.split(/\s+/).filter(w => w.length > 0);
+            let result = text;
+
+            words.forEach(word => {
+                const regex = new RegExp('(' + word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+                result = result.replace(regex, '<span class="highlight">$1</span>');
+            });
+
+            return result;
         }
 
         // ============================================
@@ -628,16 +1039,34 @@
                 return;
             }
 
-            container.innerHTML = voters.map(v => {
+            if (currentView === 'list') {
+                renderListView(container, voters, query);
+            } else {
+                renderGridView(container, voters, query);
+            }
+        }
+
+        // ============================================
+        // RENDER LIST VIEW
+        // ============================================
+        function renderListView(container, voters, query) {
+            container.innerHTML = `<div class="results-list">`;
+
+            voters.forEach(v => {
                 const initial = (v.name || 'U').charAt(0).toUpperCase();
+                const hasPhoto = v.photo_url && v.photo_url.length > 0;
+                const photoHtml = hasPhoto ?
+                    `<img src="${v.photo_url}" alt="${v.name}" onerror="this.parentElement.innerHTML='<span class=\\'no-photo\\'>${initial}</span>'" />` :
+                    `<span class="no-photo">${initial}</span>`;
+
                 const name = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
                 const id = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
                 const house = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
                 const phone = query ? highlightText(v.phone || 'N/A', query) : (v.phone || 'N/A');
 
-                return `
-                    <div class="result">
-                        <div class="avatar">${initial}</div>
+                container.innerHTML += `
+                    <div class="result-item" onclick="openModal(${v.id})">
+                        <div class="avatar">${photoHtml}</div>
                         <div class="info">
                             <div class="name">${name}</div>
                             <div class="detail">
@@ -646,26 +1075,101 @@
                                 <span><i class="fas fa-phone"></i> ${phone}</span>
                                 <span class="sep">·</span>
                                 <span><i class="fas fa-home"></i> ${house}</span>
-                                <span class="badge">ID ${v.id}</span>
+                                ${v.age ? `<span class="badge">${v.age} yrs</span>` : ''}
+                                ${v.party ? `<span class="badge">${v.party}</span>` : ''}
                             </div>
                         </div>
-                        <button class="copy" onclick="copyVoter(${v.id})">
-                            <i class="fas fa-copy"></i> Copy
-                        </button>
                     </div>
                 `;
-            }).join('');
+            });
+
+            container.innerHTML += `</div>`;
         }
 
         // ============================================
-        // COPY VOTER
+        // RENDER GRID VIEW
         // ============================================
-        function copyVoter(id) {
-            const v = allVoters.find(x => x.id === id);
-            if (!v) return;
+        function renderGridView(container, voters, query) {
+            container.innerHTML = `<div class="results-grid">`;
 
-            const info = `Name: ${v.name}\nID: ${v.national_id}\nPhone: ${v.phone}\nHouse: ${v.house}`;
-            
+            voters.forEach(v => {
+                const initial = (v.name || 'U').charAt(0).toUpperCase();
+                const hasPhoto = v.photo_url && v.photo_url.length > 0;
+                const photoHtml = hasPhoto ?
+                    `<img src="${v.photo_url}" alt="${v.name}" onerror="this.parentElement.innerHTML='<span class=\\'no-photo\\'>${initial}</span>'" />` :
+                    `<span class="no-photo">${initial}</span>`;
+
+                const name = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
+                const id = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
+                const house = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
+
+                container.innerHTML += `
+                    <div class="result-card" onclick="openModal(${v.id})">
+                        <div class="card-photo">${photoHtml}</div>
+                        <div class="card-body">
+                            <div class="card-name">${name}</div>
+                            <div class="card-detail"><i class="fas fa-id-card"></i> ${id}</div>
+                            <div class="card-detail"><i class="fas fa-home"></i> ${house}</div>
+                            <div class="card-badges">
+                                ${v.age ? `<span class="badge">${v.age}y</span>` : ''}
+                                ${v.party ? `<span class="badge">${v.party}</span>` : ''}
+                                ${v.vote_status ? `<span class="badge">${v.vote_status}</span>` : ''}
+                            </div>
+                            <div class="card-id">ID ${v.id}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML += `</div>`;
+        }
+
+        // ============================================
+        // MODAL
+        // ============================================
+        function openModal(id) {
+            const voter = allVoters.find(v => v.id === id);
+            if (!voter) return;
+
+            currentModalVoter = voter;
+
+            document.getElementById('modalName').textContent = voter.name || 'Voter';
+
+            // Photo
+            const photoContainer = document.getElementById('modalPhoto');
+            if (voter.photo_url && voter.photo_url.length > 0) {
+                photoContainer.innerHTML = `<img src="${voter.photo_url}" alt="${voter.name}" onerror="this.innerHTML='<div class=\\'no-photo\\'>👤</div>'" />`;
+            } else {
+                const initial = (voter.name || 'U').charAt(0).toUpperCase();
+                photoContainer.innerHTML = `<div class="no-photo">${initial}</div>`;
+            }
+
+            // Info
+            document.getElementById('modalId').textContent = voter.national_id || '—';
+            document.getElementById('modalPhone').textContent = voter.phone || '—';
+            document.getElementById('modalHouse').textContent = voter.house || '—';
+            document.getElementById('modalAge').textContent = voter.age || '—';
+            document.getElementById('modalGender').textContent = voter.sex || '—';
+            document.getElementById('modalParty').textContent = voter.party || '—';
+            document.getElementById('modalStatus').textContent = voter.vote_status || '—';
+            document.getElementById('modalReach').textContent = voter.reach_status || '—';
+
+            document.getElementById('voterModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('voterModal').classList.remove('open');
+            document.body.style.overflow = '';
+            currentModalVoter = null;
+        }
+
+        function copyModalVoter() {
+            if (!currentModalVoter) return;
+
+            const v = currentModalVoter;
+            const info = `Name: ${v.name}\nID: ${v.national_id}\nPhone: ${v.phone}\nHouse: ${v.house}${v.age ? `\nAge: ${v.age}` : ''}${v.sex ? `\nGender: ${v.sex}` : ''}${v.party ? `\nParty: ${v.party}` : ''}${v.vote_status ? `\nVote Status: ${v.vote_status}` : ''}${v.reach_status ? `\nReach Status: ${v.reach_status}` : ''}`;
+
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(info).then(() => {
                     showToast('Copied to clipboard', 'success');
@@ -699,6 +1203,7 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('clearBtn').classList.remove('show');
             renderResults(allVoters, '');
+            document.getElementById('resultCount').textContent = allVoters.length;
             document.getElementById('searchInput').focus();
         }
 
@@ -726,7 +1231,6 @@
         // KEYBOARD SHORTCUTS
         // ============================================
         document.addEventListener('keydown', function(e) {
-            // / to focus search
             if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
                 const active = document.activeElement;
                 if (active && active.tagName !== 'INPUT') {
@@ -734,14 +1238,20 @@
                     document.getElementById('searchInput').focus();
                 }
             }
-            // Escape to clear
             if (e.key === 'Escape') {
-                if (document.getElementById('searchInput').value) {
+                if (document.getElementById('voterModal').classList.contains('open')) {
+                    closeModal();
+                } else if (document.getElementById('searchInput').value) {
                     clearSearch();
                 } else {
                     document.getElementById('searchInput').blur();
                 }
             }
+        });
+
+        // Close modal on outside click
+        document.getElementById('voterModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
         });
 
         // ============================================
