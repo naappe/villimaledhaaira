@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Villimale Dhaaira - Voter Search</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    
+    <style>
+        /* ============================================
+           PROFESSIONAL SEARCH PAGE
+           ============================================ */
+        :root {
+            --primary: #7C3AED;
+            --primary-dark: #6D28D9;
+            --primary-light: #EDE9FE;
+            --bg-primary: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-muted: #94A3B8;
+            --border: #E2E8F0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 32px rgba(124, 58, 237, 0.12);
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* HEADER */
+        .search-header {
+            width: 100%;
+            max-width: 720px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-header .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .search-header .brand i {
+            color: var(--primary);
+            font-size: 20px;
+        }
+
+        .search-header .brand .sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .search-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .search-header .close-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        /* SEARCH BAR */
+        .search-wrapper {
+            width: 100%;
+            max-width: 720px;
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-wrapper .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            height: 56px;
+            padding: 0 50px 0 48px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            font-size: 16px;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+            font-weight: 400;
+        }
+
+        .search-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08), var(--shadow);
+        }
+
+        .search-wrapper input::placeholder {
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .search-wrapper .clear-btn {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 8px;
+            display: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-wrapper .clear-btn.visible {
+            display: block;
+        }
+
+        .search-wrapper .clear-btn:hover {
+            color: var(--text-primary);
+        }
+
+        /* SEARCH STATS */
+        .search-stats {
+            width: 100%;
+            max-width: 720px;
+            font-size: 13px;
+            color: var(--text-muted);
+            padding: 4px 4px 12px 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-stats .count {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .search-stats .hint {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .search-stats .hint kbd {
+            background: var(--bg-primary);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            font-size: 11px;
+            font-family: inherit;
+        }
+
+        /* RESULTS */
+        .results-container {
+            width: 100%;
+            max-width: 720px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .result-item {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+        }
+
+        .result-item:hover {
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+        }
+
+        .result-item:active {
+            transform: scale(0.99);
+        }
+
+        .result-item .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary);
+            flex-shrink: 0;
+            border: 2px solid var(--border);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .result-item .avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .result-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-item .name {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .result-item .details {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 12px;
+            margin-top: 2px;
+        }
+
+        .result-item .details .sep {
+            color: var(--border);
+        }
+
+        .result-item .details i {
+            width: 14px;
+            color: var(--primary);
+            margin-right: 2px;
+            font-size: 12px;
+        }
+
+        .result-item .details .id-badge {
+            background: var(--bg-primary);
+            padding: 1px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .result-item .action-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: var(--radius);
+            background: var(--primary);
+            color: white;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .result-item .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .result-item .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: var(--border);
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* LOADING */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .loading-spinner i {
+            font-size: 24px;
+            animation: spin 1s linear infinite;
+            color: var(--primary);
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1E1B4B;
+            color: white;
+            padding: 10px 24px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 999;
+            box-shadow: var(--shadow-lg);
+            max-width: 92%;
+            text-align: center;
+            animation: toastIn 0.3s ease;
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.success { border-left-color: #22C55E; }
+        .toast.error { border-left-color: #EF4444; }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* HIGHLIGHT */
+        .highlight {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: 600;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .search-header {
+                margin-bottom: 16px;
+                padding-bottom: 12px;
+            }
+
+            .search-header .brand {
+                font-size: 16px;
+            }
+
+            .search-header .brand .sub {
+                display: none;
+            }
+
+            .search-wrapper input {
+                height: 48px;
+                font-size: 14px;
+                padding: 0 44px 0 42px;
+            }
+
+            .search-stats {
+                font-size: 12px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+
+            .search-stats .hint {
+                display: none;
+            }
+
+            .result-item {
+                padding: 12px 14px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .result-item .avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+
+            .result-item .name {
+                font-size: 14px;
+            }
+
+            .result-item .details {
+                font-size: 12px;
+                gap: 2px 8px;
+            }
+
+            .result-item .details .id-badge {
+                font-size: 10px;
+                padding: 0px 8px;
+            }
+
+            .result-item .action-btn {
+                width: 100%;
+                text-align: center;
+                padding: 8px;
+                margin-top: 2px;
+            }
+
+            .empty-state {
+                padding: 40px 16px;
+            }
+
+            .empty-state i {
+                font-size: 36px;
+            }
+
+            .empty-state h3 {
+                font-size: 16px;
+            }
+        }
+
+        /* DARK MODE */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #0F0A1A;
+                --bg-card: #1A1430;
+                --text-primary: #F1F5F9;
+                --text-secondary: #94A3B8;
+                --text-muted: #64748B;
+                --border: #2D3A4F;
+                --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                --shadow-lg: 0 8px 32px rgba(124, 58, 237, 0.15);
+                --primary-light: rgba(124, 58, 237, 0.2);
+            }
+
+            .search-header {
+                border-bottom-color: var(--border);
+            }
+
+            .search-wrapper input {
+                background: var(--bg-card);
+                color: var(--text-primary);
+                border-color: var(--border);
+            }
+
+            .search-wrapper input:focus {
+                border-color: var(--primary);
+            }
+
+            .result-item {
+                background: var(--bg-card);
+                border-color: var(--border);
+            }
+
+            .result-item .avatar {
+                background: var(--primary-light);
+                border-color: var(--border);
+            }
+
+            .result-item .details .id-badge {
+                background: var(--bg-primary);
+            }
+
+            .empty-state {
+                background: var(--bg-card);
+                border-color: var(--border);
+            }
+
+            .empty-state i {
+                color: var(--border);
+            }
+
+            .toast {
+                background: var(--bg-card);
+                color: var(--text-primary);
+                border-left-color: var(--primary);
+            }
+
+            .toast.success { border-left-color: #22C55E; }
+            .toast.error { border-left-color: #EF4444; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="search-header">
+        <div class="brand">
+            <i class="fas fa-vote-yea"></i>
+            <span>Villimale</span>
+            <span class="sub">Dhaaira</span>
+        </div>
+        <button class="close-btn" onclick="window.close()">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </header>
+
+    <!-- SEARCH BAR -->
+    <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search by name, ID, or house..." autofocus />
+        <button class="clear-btn" id="clearBtn" onclick="clearSearch()">
+            <i class="fas fa-times-circle"></i>
+        </button>
+    </div>
+
+    <!-- STATS -->
+    <div class="search-stats">
+        <span><span class="count" id="resultCount">0</span> voters found</span>
+        <span class="hint">Press <kbd>Esc</kbd> to clear · <kbd>/</kbd> to search</span>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="results-container" id="resultsContainer">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner"></i> Loading voter data...
+        </div>
+    </div>
+
+    <div id="toastContainer"></div>
+
+    <script>
+        // ============================================
+        // STANDALONE SEARCH - WORKS LOCALLY
+        // ============================================
+
+        // BUILD SAMPLE DATA DIRECTLY (No external calls)
+        function buildSampleData() {
+            const houses = [
+                'H. Orchid', 'H. Rose', 'H. Tulip', 'H. Lotus', 'H. Lily',
+                'H. Clover', 'H. Daisy', 'H. Palm', 'H. Sunset', 'H. Coral',
+                'H. Breeze', 'H. Wave', 'H. Sand', 'H. Star', 'H. Moonlight'
+            ];
+
+            const names = [
+                'Ahmed Rasheed', 'Fathimath Shazna', 'Mohamed Aslam', 'Aishath Rasha',
+                'Abdulla Saeed', 'Mariyam Shakeela', 'Nashid Waheed', 'Hussain Nizar',
+                'Fathimath Suzan', 'Adam Zameer', 'Aishath Naba', 'Mohamed Saeed',
+                'Fathimath Zahra', 'Ibrahim Shafeeq', 'Aminath Shifaz', 'Hassan Zareer',
+                'Mariyam Zuha', 'Ahmed Naseer', 'Fathimath Nashid', 'Mohamed Shujau'
+            ];
+
+            const parties = ['MDP', 'PNC', 'MDP', 'Other', 'MDP', 'PNC', 'MDP', 'Other'];
+
+            const voters = [];
+
+            for (let i = 0; i < 3351; i++) {
+                const statuses = ['will-vote', 'not-vote', 'pending', 'undecided'];
+                const reaches = ['reached', 'not-reached'];
+                
+                voters.push({
+                    id: i + 1,
+                    name: names[i % names.length] + (i > 19 ? ' ' + (i + 1) : ''),
+                    national_id: 'A' + String(100000 + i).padStart(6, '0'),
+                    house: houses[i % houses.length],
+                    phone: '7' + String(700000 + i).padStart(6, '0'),
+                    sex: i % 2 === 0 ? 'M' : 'F',
+                    age: 18 + (i % 50),
+                    party: parties[i % parties.length],
+                    vote_status: statuses[i % statuses.length],
+                    reach_status: reaches[i % reaches.length],
+                    remarks: i % 4 === 0 ? 'Met with family' : null,
+                    photo_url: ''
+                });
+            }
+
+            return voters;
+        }
+
+        // STATE
+        let allVoters = [];
+        let searchTimeout = null;
+        let currentQuery = '';
+
+        // INIT
+        function init() {
+            console.log('Building voter data...');
+            allVoters = buildSampleData();
+            console.log('Loaded ' + allVoters.length + ' voters');
+            
+            // Show all voters initially
+            renderResults(allVoters, '');
+            
+            // Update stats
+            document.getElementById('resultCount').textContent = allVoters.length;
+        }
+
+        // SEARCH
+        function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            const clearBtn = document.getElementById('clearBtn');
+
+            if (query.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+
+            currentQuery = query;
+
+            clearTimeout(searchTimeout);
+
+            searchTimeout = setTimeout(() => {
+                if (!query) {
+                    renderResults(allVoters, '');
+                    return;
+                }
+
+                const lowerQuery = query.toLowerCase();
+                const results = allVoters.filter(v => {
+                    const name = (v.name || '').toLowerCase();
+                    const id = (v.national_id || '').toLowerCase();
+                    const house = (v.house || '').toLowerCase();
+                    const phone = (v.phone || '').toLowerCase();
+                    
+                    return name.includes(lowerQuery) || 
+                           id.includes(lowerQuery) || 
+                           house.includes(lowerQuery) ||
+                           phone.includes(lowerQuery);
+                });
+
+                renderResults(results, query);
+            }, 200);
+        }
+
+        // HIGHLIGHT
+        function highlightText(text, query) {
+            if (!query || !text) return text || '';
+            const lowerText = text.toLowerCase();
+            const lowerQuery = query.toLowerCase();
+            const index = lowerText.indexOf(lowerQuery);
+            if (index === -1) return text;
+            
+            const before = text.substring(0, index);
+            const match = text.substring(index, index + query.length);
+            const after = text.substring(index + query.length);
+            
+            return before + '<span class="highlight">' + match + '</span>' + after;
+        }
+
+        // RENDER RESULTS
+        function renderResults(voters, query) {
+            const container = document.getElementById('resultsContainer');
+            const countEl = document.getElementById('resultCount');
+
+            countEl.textContent = voters.length;
+
+            if (voters.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No voters found</h3>
+                        <p>Try a different search term</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = voters.map(v => {
+                const initial = (v.name || 'U').charAt(0).toUpperCase();
+                const photo = v.photo_url ? 
+                    `<img src="${v.photo_url}" onerror="this.parentElement.textContent='${initial}'" />` : 
+                    initial;
+
+                const displayName = query ? highlightText(v.name || 'Unknown', query) : (v.name || 'Unknown');
+                const displayId = query ? highlightText(v.national_id || 'N/A', query) : (v.national_id || 'N/A');
+                const displayHouse = query ? highlightText(v.house || 'N/A', query) : (v.house || 'N/A');
+                const displayPhone = query ? highlightText(v.phone || 'N/A', query) : (v.phone || 'N/A');
+
+                return `
+                    <div class="result-item">
+                        <div class="avatar">${photo}</div>
+                        <div class="info">
+                            <div class="name">${displayName}</div>
+                            <div class="details">
+                                <span><i class="fas fa-id-card"></i> ${displayId}</span>
+                                <span class="sep">·</span>
+                                <span><i class="fas fa-phone"></i> ${displayPhone}</span>
+                                <span class="sep">·</span>
+                                <span><i class="fas fa-home"></i> ${displayHouse}</span>
+                                <span class="id-badge">ID ${v.id}</span>
+                            </div>
+                        </div>
+                        <button class="action-btn" onclick="copyVoterInfo(${v.id})">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // COPY VOTER INFO
+        function copyVoterInfo(id) {
+            const voter = allVoters.find(v => v.id === id);
+            if (!voter) return;
+
+            const info = `Name: ${voter.name}\nID: ${voter.national_id}\nPhone: ${voter.phone}\nHouse: ${voter.house}`;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(info).then(() => {
+                    showToast('Voter info copied to clipboard', 'success');
+                }).catch(() => {
+                    fallbackCopy(info);
+                });
+            } else {
+                fallbackCopy(info);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Voter info copied to clipboard', 'success');
+            } catch (e) {
+                showToast('Could not copy. Please select and copy manually.', 'error');
+            }
+            textarea.remove();
+        }
+
+        // CLEAR SEARCH
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearBtn').classList.remove('visible');
+            currentQuery = '';
+            renderResults(allVoters, '');
+            document.getElementById('searchInput').focus();
+        }
+
+        // TOAST
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const existing = container.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', function(e) {
+            if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+                const active = document.activeElement;
+                if (active && active.tagName !== 'INPUT') {
+                    e.preventDefault();
+                    document.getElementById('searchInput').focus();
+                }
+            }
+            if (e.key === 'Escape') {
+                if (document.getElementById('searchInput').value) {
+                    clearSearch();
+                } else {
+                    document.getElementById('searchInput').blur();
+                }
+            }
+        });
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', performSearch);
+
+            setTimeout(() => searchInput.focus(), 400);
+
+            // Initialize with data
+            init();
+        });
+    </script>
+
+</body>
+</html>
