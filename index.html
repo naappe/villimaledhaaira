@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Voter Management System</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css?v=43" />
+</head>
+<body>
+
+    <div class="party-selection-overlay" id="partySelection">
+        <div class="party-selection-box">
+            <div class="party-selection-icon">
+                <i class="fas fa-vote-yea"></i>
+            </div>
+            <h2>Villimale Dhaaira</h2>
+            <p class="subtitle">Select the voter dashboard you want to open</p>
+
+            <div class="party-grid">
+                <a href="all-voters.html" class="party-card" style="border-color: #2563eb; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #eff6ff; color: #2563eb;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #0f172a;">Test Mode</div>
+                        <div class="party-card-full">No login now. Open the full dashboard for checking.</div>
+                        <div class="party-card-stats">
+                            <span class="voter-count">Admin / MDP / PNC</span>
+                            <span class="reg-date">View only</span>
+                        </div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #64748b;"><i class="fas fa-chevron-right"></i></div>
+                </a>
+
+                <a href="all-voters.html" class="party-card" style="border-color: #2563eb; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #2563eb; color: white;">
+                        <i class="fas fa-users-viewfinder"></i>
+                    </div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #2563eb;">All Voters</div>
+                        <div class="party-card-full">Full voter list with party, status, house, and search filters</div>
+                        <div class="party-card-stats">
+                            <span class="voter-count">All parties</span>
+                            <span class="reg-date">Search everything</span>
+                        </div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #2563eb;"><i class="fas fa-chevron-right"></i></div>
+                </a>
+
+                <a href="new-list/index.html" class="party-card" style="border-color: #172033; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #172033; color: white;">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #172033;">New List Analyzer</div>
+                        <div class="party-card-full">Compare election PDF list with Supabase using masked ID endings</div>
+                        <div class="party-card-stats">
+                            <span class="voter-count">Separate folder</span>
+                            <span class="reg-date">New voters check</span>
+                        </div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #172033;"><i class="fas fa-chevron-right"></i></div>
+                </a>
+
+                <a href="pages/mdp-tracker.html" class="party-card" style="border-color: #f5a623; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #f5a623; color: #1a1a2e;">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #f5a623;">MDP</div>
+                        <div class="party-card-full">Maldivian Democratic Party</div>
+                        <div class="party-card-stats">
+                            <span class="voter-count">Party dashboard</span>
+                            <span class="reg-date">26 Jun 2005</span>
+                        </div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #f5a623;"><i class="fas fa-chevron-right"></i></div>
+                </a>
+
+                <a href="pages/pnc-tracker.html" class="party-card" style="border-color: #1abc9c; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #1abc9c; color: white;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #1abc9c;">PNC</div>
+                        <div class="party-card-full">Peoples National Congress</div>
+                        <div class="party-card-stats">
+                            <span class="voter-count">Party dashboard</span>
+                            <span class="reg-date">31 Jan 2019</span>
+                        </div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #1abc9c;"><i class="fas fa-chevron-right"></i></div>
+                </a>
+            </div>
+
+            <div class="party-selection-footer">
+                <span>Open All Voters for full search and campaign overview</span>
+                <span class="total-voters">Data source: <strong>Supabase full_import</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <script>window.TEST_MODE_NO_LOGIN = true;</script>
+    <script src="js/config.js?v=43"></script>
+    <script src="js/auth.js?v=43"></script>
+</body>
+</html>
