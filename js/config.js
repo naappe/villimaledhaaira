@@ -1,20 +1,18 @@
 // ============================================
-// SUPABASE CONFIGURATION
+// APP CONFIGURATION
 // ============================================
 
-const SUPABASE_CONFIG = {
+window.SUPABASE_CONFIG = {
     url: 'https://espezmdpkoixnfchomqb.supabase.co',
     publishableKey: 'sb_publishable_xP8z74zcMuCkj6xlu1bJ3w_Kudqbcu1'
 };
 
-const TEST_MODE_NO_LOGIN = false;
-const ADMIN_EMAIL = 'naappe@gmail.com';
+window.TEST_MODE_NO_LOGIN = false;
+window.APP_ALLOW_TEST_MODE = false;
+window.ADMIN_EMAIL = 'naappe@gmail.com';
+window.ADMIN_USERNAME = '5654';
 
-// ============================================
-// PARTY DETAILS
-// ============================================
-
-const PARTY_AUTH = {
+window.PARTY_AUTH = {
     MDP: {
         shortName: 'MDP',
         fullName: 'Maldivian Democratic Party',
@@ -40,8 +38,3 @@ const PARTY_AUTH = {
         partyValue: 'PNC'
     }
 };
-
-window.SUPABASE_CONFIG = SUPABASE_CONFIG;
-window.PARTY_AUTH = PARTY_AUTH;
-window.TEST_MODE_NO_LOGIN = TEST_MODE_NO_LOGIN;
-window.ADMIN_EMAIL = ADMIN_EMAIL;
