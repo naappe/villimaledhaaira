@@ -6,38 +6,91 @@
     <title>Login - Villimale Voter System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="css/style.css?v=51" />
+    <link rel="stylesheet" href="css/style.css?v=54" />
     <style>
-        :root {
-            --party-color: #2563eb;
-            --btn-text: #ffffff;
+        :root { --party-color: #2563eb; --btn-text: #ffffff; }
+        body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #24243e); }
+        .password-overlay { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+        .password-box {
+            width: min(420px, 100%);
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            box-shadow: 0 30px 90px rgba(0,0,0,.35);
+            backdrop-filter: blur(18px);
+            padding: 34px 32px;
         }
-
-        .login-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        .login-actions a {
-            flex: 1;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.65);
-            text-decoration: none;
-            font-size: 12px;
-            padding: 8px;
-        }
-
-        .admin-email {
+        .lock-icon { text-align: center; color: #2f6df6; font-size: 46px; margin-bottom: 14px; }
+        h2 { color: #fff; text-align: center; font-size: 28px; margin: 0 0 6px; }
+        h2 span { color: #2f6df6; }
+        .subtitle { color: rgba(255,255,255,.66); text-align: center; margin: 0 0 24px; }
+        .admin-email, .password-field {
             background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 12px;
             color: #ffffff;
-            font-weight: 700;
+            font-weight: 800;
             margin-bottom: 14px;
-            padding: 12px 16px;
-            text-align: center;
+            min-height: 46px;
         }
+        .admin-email { display: grid; place-items: center; padding: 0 14px; }
+        .password-field { display: grid; grid-template-columns: 1fr 44px; align-items: center; overflow: hidden; }
+        .password-field input {
+            background: transparent;
+            border: 0;
+            color: #fff;
+            font: inherit;
+            font-weight: 700;
+            outline: 0;
+            padding: 0 14px;
+            width: 100%;
+        }
+        .password-field input::placeholder { color: rgba(255,255,255,.45); }
+        .password-field:focus-within { border-color: #2f6df6; box-shadow: 0 0 0 4px rgba(47,109,246,.18); }
+        .toggle-password {
+            height: 100%;
+            border: 0;
+            background: rgba(255,255,255,.08);
+            color: rgba(255,255,255,.75);
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .toggle-password:hover { color: #fff; background: rgba(255,255,255,.14); }
+        .remember-row { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.7); font-weight: 700; margin: 8px 0 16px; }
+        .remember-row input { width: 18px; height: 18px; accent-color: #2563eb; }
+        .password-message {
+            display: none;
+            border-radius: 12px;
+            padding: 11px 12px;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            line-height: 1.35;
+        }
+        .password-message.error { display: block; background: rgba(239, 68, 68, .16); color: #fecaca; border: 1px solid rgba(239,68,68,.38); }
+        .password-message.success { display: block; background: rgba(34, 197, 94, .15); color: #bbf7d0; border: 1px solid rgba(34,197,94,.35); }
+        .password-message.info { display: block; background: rgba(59, 130, 246, .16); color: #bfdbfe; border: 1px solid rgba(59,130,246,.35); }
+        .btn-unlock {
+            width: 100%;
+            min-height: 48px;
+            border: 0;
+            border-radius: 12px;
+            background: #2563eb;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            transition: transform .16s ease, opacity .16s ease;
+        }
+        .btn-unlock:hover { transform: translateY(-1px); }
+        .btn-unlock:disabled { cursor: not-allowed; opacity: .7; transform: none; }
+        .login-actions { display: flex; gap: 8px; margin-top: 16px; }
+        .login-actions a { flex: 1; text-align: center; color: rgba(255,255,255,.68); text-decoration: none; font-size: 12px; font-weight: 800; padding: 8px; }
+        .login-actions a:hover { color: #fff; }
     </style>
 </head>
 <body>
@@ -45,18 +98,19 @@
         <div class="password-box">
             <div class="lock-icon"><i class="fas fa-user-shield"></i></div>
             <h2>Admin <span>Login</span></h2>
-            <p>Protected access for the voter dashboard</p>
+            <p class="subtitle">Protected access for the voter dashboard</p>
             <form id="loginForm">
                 <div class="admin-email" id="adminEmailLabel">naappe@gmail.com</div>
-                <div class="form-group">
+                <div class="password-field">
                     <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required autofocus />
+                    <button type="button" class="toggle-password" id="togglePassword" aria-label="Show password"><i class="fas fa-eye"></i></button>
                 </div>
                 <div class="remember-row">
                     <input type="checkbox" id="rememberInput" />
                     <label for="rememberInput">Remember this device</label>
                 </div>
-                <div class="password-error" id="loginError"></div>
-                <button type="submit" class="btn-unlock"><i class="fas fa-right-to-bracket"></i> Login</button>
+                <div class="password-message" id="loginMessage"></div>
+                <button type="submit" class="btn-unlock" id="loginButton"><i class="fas fa-right-to-bracket"></i> <span>Login</span></button>
             </form>
             <div class="login-actions">
                 <a href="index.html">Home</a>
@@ -66,72 +120,108 @@
     </div>
 
     <script>window.TEST_MODE_NO_LOGIN = false;</script>
-    <script src="js/config.js?v=51"></script>
-    <script src="js/components.js?v=51"></script>
-    <script src="js/auth.js?v=51"></script>
+    <script src="js/config.js?v=54"></script>
+    <script src="js/components.js?v=54"></script>
+    <script src="js/auth.js?v=54"></script>
     <script>
         const form = document.getElementById('loginForm');
         const passwordInput = document.getElementById('passwordInput');
         const rememberInput = document.getElementById('rememberInput');
-        const loginError = document.getElementById('loginError');
+        const loginMessage = document.getElementById('loginMessage');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const loginButton = document.getElementById('loginButton');
+        const togglePassword = document.getElementById('togglePassword');
         const adminEmail = String(window.ADMIN_EMAIL || 'naappe@gmail.com').trim().toLowerCase();
 
         document.getElementById('adminEmailLabel').textContent = adminEmail;
         rememberInput.checked = localStorage.getItem('villimaleRememberAdminEmail') === adminEmail;
 
-        function showMessage(message) {
-            loginError.textContent = message;
-            loginError.style.display = 'block';
+        function showMessage(message, type = 'info') {
+            loginMessage.className = `password-message ${type}`;
+            loginMessage.textContent = message;
         }
+
+        function clearMessage() {
+            loginMessage.className = 'password-message';
+            loginMessage.textContent = '';
+        }
+
+        function setLoading(isLoading, text = 'Checking...') {
+            loginButton.disabled = isLoading;
+            loginButton.innerHTML = isLoading
+                ? `<i class="fas fa-spinner fa-spin"></i> <span>${text}</span>`
+                : '<i class="fas fa-right-to-bracket"></i> <span>Login</span>';
+        }
+
+        togglePassword.addEventListener('click', () => {
+            const isHidden = passwordInput.type === 'password';
+            passwordInput.type = isHidden ? 'text' : 'password';
+            togglePassword.innerHTML = isHidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+            togglePassword.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+            passwordInput.focus();
+        });
 
         form.addEventListener('submit', async e => {
             e.preventDefault();
-            loginError.style.display = 'none';
+            clearMessage();
+            setLoading(true, 'Checking password...');
 
             const client = createSupabaseClient();
-            const { error } = await client.auth.signInWithPassword({
-                email: adminEmail,
-                password: passwordInput.value
-            });
+            try {
+                const { error } = await client.auth.signInWithPassword({
+                    email: adminEmail,
+                    password: passwordInput.value
+                });
 
-            if (error) {
-                showMessage(error.message || 'Login failed');
-                return;
+                if (error) {
+                    showMessage('Password is not correct. Please try again or reset it.', 'error');
+                    setLoading(false);
+                    return;
+                }
+
+                const user = await getActiveUser();
+                if (!user || String(user.email || '').toLowerCase() !== adminEmail) {
+                    await client.auth.signOut();
+                    showMessage('Login blocked. This account is not allowed.', 'error');
+                    setLoading(false);
+                    return;
+                }
+
+                if (rememberInput.checked) {
+                    localStorage.setItem('villimaleRememberAdminEmail', adminEmail);
+                } else {
+                    localStorage.removeItem('villimaleRememberAdminEmail');
+                }
+
+                showMessage('Password correct. Opening dashboard...', 'success');
+                setLoading(true, 'Opening...');
+                setTimeout(() => window.location.replace('all-voters.html'), 350);
+            } catch (error) {
+                showMessage('Login check failed. Please check internet and try again.', 'error');
+                setLoading(false);
             }
-
-            const user = await getActiveUser();
-            if (!user || String(user.email || '').toLowerCase() !== adminEmail) {
-                await client.auth.signOut();
-                showMessage('This account is not allowed.');
-                return;
-            }
-
-            if (rememberInput.checked) {
-                localStorage.setItem('villimaleRememberAdminEmail', adminEmail);
-            } else {
-                localStorage.removeItem('villimaleRememberAdminEmail');
-            }
-
-            await redirectByRole();
         });
 
         forgotPasswordLink.addEventListener('click', async e => {
             e.preventDefault();
-            loginError.style.display = 'none';
+            clearMessage();
+            setLoading(true, 'Sending reset...');
 
             const client = createSupabaseClient();
             const { error } = await client.auth.resetPasswordForEmail(adminEmail, {
                 redirectTo: window.location.origin + window.location.pathname
             });
 
+            setLoading(false);
             showMessage(error
-                ? (error.message || 'Could not send reset email')
-                : `Password reset email sent to ${adminEmail}`);
+                ? 'Could not send reset email. Try again in a moment.'
+                : `Password reset email sent to ${adminEmail}.`,
+                error ? 'error' : 'success');
         });
 
         getActiveRole().then(role => {
-            if (role) redirectByRole();
+            if (role) showMessage('Already logged in. Opening dashboard...', 'success');
+            if (role) setTimeout(() => window.location.replace('all-voters.html'), 400);
         });
     </script>
 </body>
