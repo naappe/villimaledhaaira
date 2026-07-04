@@ -6,7 +6,7 @@
     <title>Login - Villimale Voter System</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="css/style.css?v=43" />
+    <link rel="stylesheet" href="css/style.css?v=51" />
     <style>
         :root {
             --party-color: #2563eb;
@@ -27,50 +27,62 @@
             font-size: 12px;
             padding: 8px;
         }
+
+        .admin-email {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 14px;
+            padding: 12px 16px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="password-overlay">
         <div class="password-box">
             <div class="lock-icon"><i class="fas fa-user-shield"></i></div>
-            <h2>Villimale <span>Login</span></h2>
-            <p>Use your username and password</p>
+            <h2>Admin <span>Login</span></h2>
+            <p>Protected access for the voter dashboard</p>
             <form id="loginForm">
+                <div class="admin-email" id="adminEmailLabel">naappe@gmail.com</div>
                 <div class="form-group">
-                    <input type="text" id="usernameInput" placeholder="Username: admin, mdp, or pnc" autocomplete="username" required autofocus />
+                    <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required autofocus />
                 </div>
-                <div class="form-group">
-                    <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required />
+                <div class="remember-row">
+                    <input type="checkbox" id="rememberInput" />
+                    <label for="rememberInput">Remember this device</label>
                 </div>
                 <div class="password-error" id="loginError"></div>
                 <button type="submit" class="btn-unlock"><i class="fas fa-right-to-bracket"></i> Login</button>
             </form>
             <div class="login-actions">
-                <a href="index.html">Back to home</a>
-                <a href="#" id="forgotPasswordLink">Forgot admin password?</a>
+                <a href="index.html">Home</a>
+                <a href="#" id="forgotPasswordLink">Reset password</a>
             </div>
         </div>
     </div>
 
-    <script>window.TEST_MODE_NO_LOGIN = true;</script>
-    <script src="js/config.js?v=43"></script>
-    <script src="js/auth.js?v=43"></script>
+    <script>window.TEST_MODE_NO_LOGIN = false;</script>
+    <script src="js/config.js?v=51"></script>
+    <script src="js/components.js?v=51"></script>
+    <script src="js/auth.js?v=51"></script>
     <script>
         const form = document.getElementById('loginForm');
-        const usernameInput = document.getElementById('usernameInput');
         const passwordInput = document.getElementById('passwordInput');
+        const rememberInput = document.getElementById('rememberInput');
         const loginError = document.getElementById('loginError');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-        const USER_EMAILS = {
-            admin: 'naappe@gmail.com',
-            mdp: 'mdp@villimale.local',
-            pnc: 'pnc@villimale.local'
-        };
+        const adminEmail = String(window.ADMIN_EMAIL || 'naappe@gmail.com').trim().toLowerCase();
 
-        function usernameToEmail(value) {
-            const username = String(value || '').trim().toLowerCase();
-            if (username.includes('@')) return username;
-            return USER_EMAILS[username] || `${username}@villimale.local`;
+        document.getElementById('adminEmailLabel').textContent = adminEmail;
+        rememberInput.checked = localStorage.getItem('villimaleRememberAdminEmail') === adminEmail;
+
+        function showMessage(message) {
+            loginError.textContent = message;
+            loginError.style.display = 'block';
         }
 
         form.addEventListener('submit', async e => {
@@ -79,14 +91,26 @@
 
             const client = createSupabaseClient();
             const { error } = await client.auth.signInWithPassword({
-                email: usernameToEmail(usernameInput.value),
+                email: adminEmail,
                 password: passwordInput.value
             });
 
             if (error) {
-                loginError.textContent = error.message || 'Login failed';
-                loginError.style.display = 'block';
+                showMessage(error.message || 'Login failed');
                 return;
+            }
+
+            const user = await getActiveUser();
+            if (!user || String(user.email || '').toLowerCase() !== adminEmail) {
+                await client.auth.signOut();
+                showMessage('This account is not allowed.');
+                return;
+            }
+
+            if (rememberInput.checked) {
+                localStorage.setItem('villimaleRememberAdminEmail', adminEmail);
+            } else {
+                localStorage.removeItem('villimaleRememberAdminEmail');
             }
 
             await redirectByRole();
@@ -97,14 +121,13 @@
             loginError.style.display = 'none';
 
             const client = createSupabaseClient();
-            const { error } = await client.auth.resetPasswordForEmail('naappe@gmail.com', {
+            const { error } = await client.auth.resetPasswordForEmail(adminEmail, {
                 redirectTo: window.location.origin + window.location.pathname
             });
 
-            loginError.textContent = error
+            showMessage(error
                 ? (error.message || 'Could not send reset email')
-                : 'Password reset email sent to naappe@gmail.com';
-            loginError.style.display = 'block';
+                : `Password reset email sent to ${adminEmail}`);
         });
 
         getActiveRole().then(role => {
