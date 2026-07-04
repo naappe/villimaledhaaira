@@ -5,13 +5,29 @@ function getAuthClient() {
     return createSupabaseClient();
 }
 
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(() => resolve({ timedOut: true }), ms));
+}
+
+async function withTimeout(promise, ms = 2500) {
+    try {
+        return await Promise.race([promise, timeout(ms)]);
+    } catch (error) {
+        return { error };
+    }
+}
+
 async function getActiveUser() {
     const client = getAuthClient();
     if (!client) return null;
 
-    const { data, error } = await client.auth.getUser();
-    if (error || !data?.user) return null;
-    return data.user;
+    const sessionResult = await withTimeout(client.auth.getSession(), 1200);
+    const sessionUser = sessionResult?.data?.session?.user;
+    if (sessionUser) return sessionUser;
+
+    const userResult = await withTimeout(client.auth.getUser(), 1800);
+    if (userResult?.error || userResult?.timedOut || !userResult?.data?.user) return null;
+    return userResult.data.user;
 }
 
 function isAdminUser(user) {
@@ -20,25 +36,13 @@ function isAdminUser(user) {
 
 async function getActiveRole() {
     if (IS_TEST_MODE) {
-        return {
-            user: null,
-            role: 'admin',
-            party: null,
-            canEdit: true,
-            canExport: true
-        };
+        return { user: null, role: 'admin', party: null, canEdit: true, canExport: true };
     }
 
     const user = await getActiveUser();
     if (!user || !isAdminUser(user)) return null;
 
-    return {
-        user,
-        role: 'admin',
-        party: null,
-        canEdit: true,
-        canExport: true
-    };
+    return { user, role: 'admin', party: null, canEdit: true, canExport: true };
 }
 
 function roleHomePath(roleInfo) {
@@ -57,15 +61,15 @@ function resolveAppPath(path) {
 
 async function redirectByRole() {
     const roleInfo = await getActiveRole();
-    window.location.href = resolveAppPath(roleHomePath(roleInfo));
+    window.location.replace(resolveAppPath(roleHomePath(roleInfo)));
 }
 
 async function requireAccess(options = {}) {
-    const roleInfo = await getActiveRole();
     const loginPath = options.loginPath || 'login.html';
+    const roleInfo = await getActiveRole();
 
     if (!roleInfo) {
-        window.location.href = resolveAppPath(loginPath);
+        window.location.replace(resolveAppPath(loginPath));
         return null;
     }
 
@@ -74,9 +78,9 @@ async function requireAccess(options = {}) {
 
 async function signOut() {
     const client = getAuthClient();
-    if (client) await client.auth.signOut();
+    if (client) await withTimeout(client.auth.signOut(), 1500);
     localStorage.removeItem('villimaleRememberAdminEmail');
-    window.location.href = resolveAppPath('login.html');
+    window.location.replace(resolveAppPath('login.html'));
 }
 
 window.getActiveUser = getActiveUser;
