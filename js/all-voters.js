@@ -21,12 +21,6 @@ const quickActionButtons = document.querySelectorAll('.quick-actions button');
 const topHousesGrid = document.getElementById('topHousesGrid');
 const topHousesCount = document.getElementById('topHousesCount');
 
-const miniTotal = document.getElementById('miniTotal');
-const miniReached = document.getElementById('miniReached');
-const miniWillVote = document.getElementById('miniWillVote');
-const miniPending = document.getElementById('miniPending');
-const miniNotDecided = document.getElementById('miniNotDecided');
-const miniNoVote = document.getElementById('miniNoVote');
 const dashReached = document.getElementById('dashReached');
 const dashReachedPercent = document.getElementById('dashReachedPercent');
 const dashNotReached = document.getElementById('dashNotReached');
@@ -47,6 +41,7 @@ const popupAge = document.getElementById('popupAge');
 const popupSex = document.getElementById('popupSex');
 const popupParty = document.getElementById('popupParty');
 const popupElectionBox = document.getElementById('popupElectionBox');
+const popupAssignedBy = document.getElementById('popupAssignedBy');
 const popupPhoneInput = document.getElementById('popupPhoneInput');
 const popupPhoneStatus = document.getElementById('popupPhoneStatus');
 const popupReachStatus = document.getElementById('popupReachStatus');
@@ -54,6 +49,30 @@ const popupVoteStatus = document.getElementById('popupVoteStatus');
 const popupSupportLevel = document.getElementById('popupSupportLevel');
 const popupRemarks = document.getElementById('popupRemarks');
 const popupForm = document.getElementById('popupForm');
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function cleanRemark(value) {
+    const remark = String(value || '').trim();
+    if (!remark) return '';
+    if (/^(MDP|PNC)\s+match\s+via\s+/i.test(remark)) return '';
+    return remark;
+}
+
+function formatAssignedBy(voter) {
+    const email = String(voter?.vote_assigned_by || '').trim();
+    const at = voter?.vote_assigned_at ? new Date(voter.vote_assigned_at) : null;
+    const dateText = at && !Number.isNaN(at.getTime()) ? at.toLocaleString() : '';
+    if (!email && !dateText) return 'Not saved yet';
+    return [email || 'Unknown user', dateText].filter(Boolean).join(' • ');
+}
 
 async function fetchAllRows(client) {
     const pageSize = 1000;
@@ -96,17 +115,14 @@ async function loadAllVoters() {
 }
 
 async function initAllVoters() {
-    activeRole = await requireAccess({
-        roles: ['admin'],
-        loginPath: 'login.html'
-    });
+    activeRole = await requireAccess({ roles: ['admin'], loginPath: 'login.html' });
     if (!activeRole) return;
     await loadAllVoters();
 }
 
 function updateUI() {
     populateHouseFilter(allVoters);
-    renderTopHouses(allVoters);
+    renderTopHouses(filteredVoters);
     updateStats(filteredVoters);
     renderGrid(filteredVoters);
 }
@@ -125,7 +141,6 @@ function populateHouseFilter(voters) {
 
 function renderTopHouses(voters) {
     const top = getTopHouses(voters);
-
     if (top.length === 0) {
         topHousesGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#888; padding:8px; font-size:12px;">No houses found</div>';
         topHousesCount.textContent = '';
@@ -134,26 +149,15 @@ function renderTopHouses(voters) {
 
     topHousesCount.textContent = `(${top.length})`;
     topHousesGrid.innerHTML = top.map(([house, count], index) => {
+        const safeHouse = String(house).replace(/'/g, "\\'");
         const rank = index < 3 ? ['#1', '#2', '#3'][index] : `#${index + 1}`;
-        return `
-            <div class="top-house-item" onclick="filterByHouse('${String(house).replace(/'/g, "\\'")}')">
-                <span>${rank} ${house}</span>
-                <span class="count">${count}</span>
-            </div>
-        `;
+        return `<div class="top-house-item" onclick="filterByHouse('${safeHouse}')"><span>${escapeHtml(rank)} ${escapeHtml(house)}</span><span class="count">${count}</span></div>`;
     }).join('');
 }
 
 function updateStats(voters) {
     const stats = calculateStats(voters);
     const reachedPercent = stats.total > 0 ? Math.round((stats.reached / stats.total) * 100) : 0;
-
-    if (miniTotal) miniTotal.textContent = stats.total;
-    if (miniReached) miniReached.textContent = stats.reached;
-    if (miniWillVote) miniWillVote.textContent = stats.willVote;
-    if (miniPending) miniPending.textContent = stats.pending;
-    if (miniNotDecided) miniNotDecided.textContent = stats.notDecided;
-    if (miniNoVote) miniNoVote.textContent = stats.noVote;
 
     dashReached.textContent = stats.reached;
     dashReachedPercent.textContent = reachedPercent + '% reached';
@@ -163,7 +167,8 @@ function updateStats(voters) {
     dashNotDecided.textContent = stats.notDecided;
     dashPending.textContent = stats.pending;
 
-    createStatusChart(document.getElementById('statusChart').getContext('2d'), voters);
+    const chartCanvas = document.getElementById('statusChart');
+    if (chartCanvas && window.Chart) createStatusChart(chartCanvas.getContext('2d'), voters);
     renderTopHouses(voters);
 }
 
@@ -191,36 +196,29 @@ function renderGrid(voters) {
         const sexDisplay = normalizeSex(v.sex) || 'N/A';
         const reach = normalizeReachStatus(v.reach_status) === 'reached' ? 'Reached' : 'Not Reached';
         const electionBox = v.election_box || 'Not matched';
+        const remark = cleanRemark(v.remarks);
+        const assignedBy = formatAssignedBy(v);
 
         return `
             <div class="voter-card voter-card-clean ${partyClass} ${guaranteeClass}" onclick="openPopup(${v.id})">
-                <div class="party-strip">
-                    <span>${party}</span>
-                    ${guaranteeBadge}
-                </div>
+                <div class="party-strip"><span>${escapeHtml(party)}</span>${guaranteeBadge}</div>
                 <div class="photo">
-                    ${photoUrl ?
-                        `<img src="${photoUrl}" alt="${v.name || 'Voter'}" loading="lazy"
-                              onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'no-photo\\'>Photo</span>';" />` :
-                        '<span class="no-photo">Photo</span>'
-                    }
+                    ${photoUrl ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(v.name || 'Voter')}" loading="lazy" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'no-photo\\'>Photo</span>';" />` : '<span class="no-photo">Photo</span>'}
                 </div>
                 <div class="status-bar ${voteStatus}">${getVoteStatusLabel(voteStatus)}</div>
                 <div class="info">
-                    <div class="card-head">
-                        <div class="name">${v.name || 'Unknown'}</div>
-                        <span class="reach-chip">${reach}</span>
-                    </div>
-                    <div class="clean-row"><span>${addressLabel}</span><strong>${address}</strong></div>
-                    <div class="clean-row"><span>ID</span><strong>${v.national_id || 'N/A'}</strong></div>
-                    <div class="clean-row box-row"><span>Box</span><strong>${electionBox}</strong></div>
+                    <div class="card-head"><div class="name">${escapeHtml(v.name || 'Unknown')}</div><span class="reach-chip">${reach}</span></div>
+                    <div class="clean-row"><span>${addressLabel}</span><strong>${escapeHtml(address)}</strong></div>
+                    <div class="clean-row"><span>ID</span><strong>${escapeHtml(v.national_id || 'N/A')}</strong></div>
+                    <div class="clean-row box-row"><span>Box</span><strong>${escapeHtml(electionBox)}</strong></div>
                     <div class="clean-meta">
-                        <span>Phone: <strong>${v.phone || 'N/A'}</strong></span>
-                        <span>Call: <strong>${phoneWork}</strong></span>
-                        <span>Age: <strong>${v.age || 'N/A'}</strong></span>
-                        <span>Sex: <strong>${sexDisplay}</strong></span>
+                        <span>Phone: <strong>${escapeHtml(v.phone || 'N/A')}</strong></span>
+                        <span>Call: <strong>${escapeHtml(phoneWork)}</strong></span>
+                        <span>Age: <strong>${escapeHtml(v.age || 'N/A')}</strong></span>
+                        <span>Sex: <strong>${escapeHtml(sexDisplay)}</strong></span>
                     </div>
-                    ${v.remarks ? `<div class="remarks"><i class="fas fa-comment"></i> ${v.remarks}</div>` : ''}
+                    <div class="assigned-line">Updated by: ${escapeHtml(assignedBy)}</div>
+                    ${remark ? `<div class="remarks"><i class="fas fa-comment"></i> ${escapeHtml(remark)}</div>` : ''}
                 </div>
             </div>
         `;
@@ -236,22 +234,18 @@ function filterVoters() {
     const phoneStatus = phoneStatusFilter.value;
     const house = houseFilter.value;
 
-    filteredVoters = filterVotersList(allVoters, search, status, house).filter(v => {
-        return !party || String(v.party || '').toUpperCase() === party;
-    }).filter(v => {
-        return !phoneStatus || normalizePhoneStatus(v.phone_status) === phoneStatus;
-    });
+    filteredVoters = filterVotersList(allVoters, search, status, house)
+        .filter(v => !party || String(v.party || '').toUpperCase() === party)
+        .filter(v => !phoneStatus || normalizePhoneStatus(v.phone_status) === phoneStatus);
 
     renderGrid(filteredVoters);
-    updateStats(allVoters);
+    updateStats(filteredVoters);
     updateActiveCard(status);
 }
 
 function updateActiveCard(status) {
     document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-    if (status) {
-        document.querySelector(`.stat-card[data-filter="${status}"]`)?.classList.add('active');
-    }
+    if (status) document.querySelector(`.stat-card[data-filter="${status}"]`)?.classList.add('active');
 }
 
 function backToAll() {
@@ -263,8 +257,7 @@ function backToAll() {
     quickActionButtons.forEach(button => button.classList.remove('active'));
     document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
     filteredVoters = [...allVoters];
-    renderGrid(filteredVoters);
-    updateStats(allVoters);
+    updateUI();
 }
 
 function filterByStatus(status) {
@@ -278,15 +271,11 @@ function filterByHouse(house) {
 }
 
 function runQuickAction(action) {
-    quickActionButtons.forEach(button => {
-        button.classList.toggle('active', button.dataset.quick === action);
-    });
+    quickActionButtons.forEach(button => button.classList.toggle('active', button.dataset.quick === action));
 
     if (action === 'all') {
         backToAll();
-        quickActionButtons.forEach(button => {
-            button.classList.toggle('active', button.dataset.quick === 'all');
-        });
+        quickActionButtons.forEach(button => button.classList.toggle('active', button.dataset.quick === 'all'));
         return;
     }
 
@@ -299,24 +288,20 @@ function runQuickAction(action) {
     if (action === 'guaranteed') {
         filteredVoters = allVoters.filter(v => (v.support_level || 'normal') === 'guaranteed');
         renderGrid(filteredVoters);
-        updateStats(allVoters);
+        updateStats(filteredVoters);
         updateActiveCard('');
         return;
-    } else if (action === 'need-call') {
-        phoneStatusFilter.value = 'need-call';
-    } else if (action === 'remarks') {
-        filteredVoters = allVoters.filter(v => Boolean((v.remarks || '').trim()));
-        renderGrid(filteredVoters);
-        updateStats(allVoters);
-        updateActiveCard('');
-        return;
-    } else if (action === 'mdp') {
-        partyFilter.value = 'MDP';
-    } else if (action === 'pnc') {
-        partyFilter.value = 'PNC';
-    } else if (action === 'follow-up') {
-        statusFilter.value = 'not-decided';
     }
+    if (action === 'remarks') {
+        filteredVoters = allVoters.filter(v => Boolean(cleanRemark(v.remarks)));
+        renderGrid(filteredVoters);
+        updateStats(filteredVoters);
+        updateActiveCard('');
+        return;
+    }
+    if (action === 'need-call') phoneStatusFilter.value = 'need-call';
+    if (action === 'mdp') partyFilter.value = 'MDP';
+    if (action === 'pnc') partyFilter.value = 'PNC';
 
     filterVoters();
 }
@@ -335,7 +320,7 @@ function openPopup(id) {
     selectedVoterId = id;
     const photoUrl = voter.photo_url || '';
     popupPhoto.innerHTML = photoUrl
-        ? `<img src="${photoUrl}" alt="${voter.name || 'Voter'}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'placeholder\\'>Photo</span>';" />`
+        ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(voter.name || 'Voter')}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=\\'placeholder\\'>Photo</span>';" />`
         : '<span class="placeholder">Photo</span>';
 
     popupName.textContent = voter.name || 'Unknown';
@@ -347,13 +332,14 @@ function openPopup(id) {
     popupSex.textContent = normalizeSex(voter.sex) || 'N/A';
     popupParty.textContent = voter.party || 'N/A';
     popupElectionBox.textContent = voter.election_box || 'Not matched';
+    if (popupAssignedBy) popupAssignedBy.textContent = formatAssignedBy(voter);
 
-    popupPhoneInput.value = '';
+    popupPhoneInput.value = voter.phone || '';
     popupPhoneStatus.value = normalizePhoneStatus(voter.phone_status);
     popupReachStatus.value = voter.reach_status || 'not-reached';
     popupVoteStatus.value = voter.vote_status || 'pending';
     popupSupportLevel.value = voter.support_level || 'normal';
-    popupRemarks.value = voter.remarks || '';
+    popupRemarks.value = cleanRemark(voter.remarks);
     updatePopupCallLink(voter.phone);
     updatePopupActionButtons();
 
@@ -381,13 +367,25 @@ async function savePopup(e) {
         return;
     }
 
+    const voter = allVoters.find(v => v.id === selectedVoterId);
     const phone = popupPhoneInput.value.trim();
     const phone_status = popupPhoneStatus.value;
     const vote_status = popupVoteStatus.value;
     const support_level = popupSupportLevel.value;
     const reach_status = getAutoReachStatus(phone_status, vote_status, support_level, popupReachStatus.value);
     const remarks = popupRemarks.value.trim();
-    const updateData = { phone, phone_status, reach_status, vote_status, support_level, remarks };
+    const assignedBy = activeRole?.user?.email || window.ADMIN_EMAIL || 'admin';
+
+    const updateData = {
+        phone,
+        phone_status,
+        reach_status,
+        vote_status,
+        support_level,
+        remarks,
+        vote_assigned_by: assignedBy,
+        vote_assigned_at: new Date().toISOString()
+    };
 
     const { data, error } = await supabaseClient
         .from(TABLE_NAME)
@@ -401,9 +399,7 @@ async function savePopup(e) {
         return;
     }
 
-    const voter = allVoters.find(v => v.id === selectedVoterId);
     if (voter) Object.assign(voter, data?.[0] || updateData);
-
     filterVoters();
     closePopup();
 }
@@ -417,9 +413,7 @@ phoneStatusFilter.addEventListener('change', filterVoters);
 houseFilter.addEventListener('change', filterVoters);
 galleryViewBtn.addEventListener('click', () => setViewMode('gallery'));
 listViewBtn.addEventListener('click', () => setViewMode('list'));
-quickActionButtons.forEach(button => {
-    button.addEventListener('click', () => runQuickAction(button.dataset.quick));
-});
+quickActionButtons.forEach(button => button.addEventListener('click', () => runQuickAction(button.dataset.quick)));
 
 popupClose.addEventListener('click', closePopup);
 btnClosePopup.addEventListener('click', closePopup);
