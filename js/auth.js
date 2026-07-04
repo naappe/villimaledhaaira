@@ -1,5 +1,27 @@
 const ADMIN_EMAIL = String(window.ADMIN_EMAIL || 'naappe@gmail.com').trim().toLowerCase();
 const IS_TEST_MODE = window.APP_ALLOW_TEST_MODE === true && window.TEST_MODE_NO_LOGIN === true;
+let supabaseClientInstance = null;
+
+function createSupabaseClient() {
+    if (supabaseClientInstance) return supabaseClientInstance;
+    if (!window.supabase || !window.SUPABASE_CONFIG?.url || !window.SUPABASE_CONFIG?.publishableKey) {
+        console.error('Supabase config or library missing');
+        return null;
+    }
+    supabaseClientInstance = window.supabase.createClient(
+        window.SUPABASE_CONFIG.url,
+        window.SUPABASE_CONFIG.publishableKey,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true,
+                flowType: 'pkce'
+            }
+        }
+    );
+    return supabaseClientInstance;
+}
 
 function getAuthClient() {
     return createSupabaseClient();
@@ -83,6 +105,7 @@ async function signOut() {
     window.location.replace(resolveAppPath('login.html'));
 }
 
+window.createSupabaseClient = createSupabaseClient;
 window.getActiveUser = getActiveUser;
 window.getActiveRole = getActiveRole;
 window.requireAccess = requireAccess;
