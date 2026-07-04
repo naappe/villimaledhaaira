@@ -1,5 +1,5 @@
-const ROLE_TABLE = 'user_roles';
-const IS_TEST_MODE = window.TEST_MODE_NO_LOGIN !== false;
+const ADMIN_EMAIL = String(window.ADMIN_EMAIL || 'naappe@gmail.com').trim().toLowerCase();
+const IS_TEST_MODE = window.APP_ALLOW_TEST_MODE === true && window.TEST_MODE_NO_LOGIN === true;
 
 function getAuthClient() {
     return createSupabaseClient();
@@ -7,56 +7,47 @@ function getAuthClient() {
 
 async function getActiveUser() {
     const client = getAuthClient();
+    if (!client) return null;
+
     const { data, error } = await client.auth.getUser();
     if (error || !data?.user) return null;
     return data.user;
+}
+
+function isAdminUser(user) {
+    return String(user?.email || '').trim().toLowerCase() === ADMIN_EMAIL;
 }
 
 async function getActiveRole() {
     if (IS_TEST_MODE) {
         return {
             user: null,
-            role: 'test',
+            role: 'admin',
             party: null,
             canEdit: true,
-            canExport: false
+            canExport: true
         };
     }
 
     const user = await getActiveUser();
-    if (!user) return null;
-
-    const client = getAuthClient();
-    const { data, error } = await client
-        .from(ROLE_TABLE)
-        .select('role, party, can_edit, can_export')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-    if (error || !data) {
-        console.error('Role lookup failed:', error);
-        return null;
-    }
+    if (!user || !isAdminUser(user)) return null;
 
     return {
         user,
-        role: data.role,
-        party: data.party,
-        canEdit: Boolean(data.can_edit),
-        canExport: Boolean(data.can_export)
+        role: 'admin',
+        party: null,
+        canEdit: true,
+        canExport: true
     };
 }
 
 function roleHomePath(roleInfo) {
-    if (!roleInfo) return 'login.html';
-    if (roleInfo.role === 'admin') return 'all-voters.html';
-    if (roleInfo.party === 'MDP') return 'pages/mdp-tracker.html';
-    if (roleInfo.party === 'PNC') return 'pages/pnc-tracker.html';
-    return 'login.html';
+    return roleInfo ? 'all-voters.html' : 'login.html';
 }
 
 function rootPrefix() {
-    return window.location.pathname.includes('/pages/') ? '../' : '';
+    const path = window.location.pathname;
+    return path.includes('/pages/') || path.includes('/new-list/') ? '../' : '';
 }
 
 function resolveAppPath(path) {
@@ -66,25 +57,11 @@ function resolveAppPath(path) {
 
 async function redirectByRole() {
     const roleInfo = await getActiveRole();
-    window.location.href = roleHomePath(roleInfo);
+    window.location.href = resolveAppPath(roleHomePath(roleInfo));
 }
 
 async function requireAccess(options = {}) {
-    if (IS_TEST_MODE) {
-        const allowedParties = options.parties || [];
-        const allowedRoles = options.roles || [];
-        return {
-            user: null,
-            role: allowedRoles.includes('admin') ? 'admin' : 'test',
-            party: allowedParties[0] || null,
-            canEdit: true,
-            canExport: false
-        };
-    }
-
     const roleInfo = await getActiveRole();
-    const allowedRoles = options.roles || [];
-    const allowedParties = options.parties || [];
     const loginPath = options.loginPath || 'login.html';
 
     if (!roleInfo) {
@@ -92,25 +69,13 @@ async function requireAccess(options = {}) {
         return null;
     }
 
-    const roleAllowed = allowedRoles.length === 0 || allowedRoles.includes(roleInfo.role);
-    const partyAllowed = allowedParties.length === 0 || allowedParties.includes(roleInfo.party);
-
-    if (!roleAllowed && !partyAllowed) {
-        window.location.href = resolveAppPath(options.deniedPath || roleHomePath(roleInfo));
-        return null;
-    }
-
     return roleInfo;
 }
 
 async function signOut() {
-    if (IS_TEST_MODE) {
-        window.location.href = resolveAppPath('index.html');
-        return;
-    }
-
     const client = getAuthClient();
-    await client.auth.signOut();
+    if (client) await client.auth.signOut();
+    localStorage.removeItem('villimaleRememberAdminEmail');
     window.location.href = resolveAppPath('login.html');
 }
 
