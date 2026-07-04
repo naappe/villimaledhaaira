@@ -6,39 +6,114 @@
     <title>PNC Tracker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="../css/style.css?v=51" />
+    <link rel="stylesheet" href="../css/style.css?v=58" />
     <style>
         :root { --party-color: #1abc9c; --btn-text: #ffffff; }
-        .tracker-entry { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-        .entry-box { width: min(460px, 100%); background: #fffdf8; border: 1px solid #d9cdbb; border-radius: 14px; box-shadow: 0 12px 28px rgba(23,32,51,.08); padding: 28px; text-align: center; }
+        .tracker-entry { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: linear-gradient(135deg,#f7f1e7,#eef8f5); }
+        .entry-box { width: min(500px, 100%); background: #fffdf8; border: 1px solid #d9cdbb; border-radius: 16px; box-shadow: 0 12px 28px rgba(23,32,51,.08); padding: 28px; text-align: center; }
         .entry-box i { color: var(--party-color); font-size: 38px; margin-bottom: 12px; }
-        .entry-box h1 { font-size: 24px; margin-bottom: 8px; }
+        .entry-box h1 { font-size: 26px; margin-bottom: 8px; }
         .entry-box p { color: #6b7280; margin-bottom: 18px; }
         .entry-actions { display: grid; gap: 10px; }
-        .entry-actions a, .entry-actions button { border: 0; border-radius: 10px; padding: 12px 14px; font-weight: 800; text-decoration: none; cursor: pointer; }
+        .entry-actions a, .entry-actions button { border: 0; border-radius: 10px; padding: 12px 14px; font-weight: 900; text-decoration: none; cursor: pointer; }
         .primary-link { background: var(--party-color); color: #062f2a; }
         .secondary-link { background: #f3ecdf; color: #172033; }
+        .login-field { display:grid; grid-template-columns:42px 1fr 42px; align-items:center; min-height:48px; border:1px solid #d9cdbb; border-radius:12px; margin-bottom:12px; background:#fff; overflow:hidden; }
+        .login-field.user { grid-template-columns:42px 1fr; }
+        .login-field input { border:0; outline:0; background:transparent; font:inherit; font-weight:800; width:100%; }
+        .login-field button { border:0; height:100%; background:#f3ecdf; cursor:pointer; }
+        .message { display:none; border-radius:12px; padding:10px 12px; margin-bottom:12px; font-weight:800; font-size:13px; }
+        .message.error { display:block; background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
+        .message.success { display:block; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; }
+        .stats-mini { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:18px 0; }
+        .mini-card { background:#f8fafc; border:1px solid #e5e7eb; border-radius:12px; padding:12px; }
+        .mini-card strong { display:block; font-size:24px; color:#062f2a; }
+        .mini-card span { font-size:12px; color:#64748b; font-weight:800; }
+        .hidden { display:none !important; }
     </style>
 </head>
 <body>
     <main class="tracker-entry">
-        <section class="entry-box">
+        <section class="entry-box" id="loginBox">
+            <i class="fas fa-users"></i>
+            <h1>PNC Login</h1>
+            <p>PNC tracker access only.</p>
+            <form id="pncLoginForm">
+                <div class="login-field user"><i class="fas fa-user"></i><input type="text" id="usernameInput" value="pnc2026" required /></div>
+                <div class="login-field"><i class="fas fa-lock"></i><input type="password" id="passwordInput" placeholder="Password" required /><button type="button" id="togglePassword"><i class="fas fa-eye"></i></button></div>
+                <div class="message" id="loginMessage"></div>
+                <div class="entry-actions"><button class="primary-link" type="submit" id="loginButton">Login</button><a class="secondary-link" href="../index.html">Back Home</a></div>
+            </form>
+        </section>
+
+        <section class="entry-box hidden" id="dashboardBox">
             <i class="fas fa-users"></i>
             <h1>PNC Tracker</h1>
-            <p>Use the protected All Voters dashboard and choose PNC from the party filter.</p>
+            <p>PNC voters only. MDP and all-voter lists are hidden.</p>
+            <div class="stats-mini">
+                <div class="mini-card"><strong id="pncTotal">0</strong><span>PNC Voters</span></div>
+                <div class="mini-card"><strong id="pncReached">0</strong><span>Reached</span></div>
+                <div class="mini-card"><strong id="pncWillVote">0</strong><span>Will Vote</span></div>
+                <div class="mini-card"><strong id="pncPending">0</strong><span>Pending</span></div>
+            </div>
             <div class="entry-actions">
-                <a class="primary-link" href="../all-voters.html">Open All Voters</a>
+                <a class="primary-link" href="../all-voters.html" id="adminAllVotersLink">Admin: Open All Voters</a>
                 <a class="secondary-link" href="../index.html">Back Home</a>
                 <button class="secondary-link" type="button" onclick="signOut()">Sign Out</button>
             </div>
         </section>
     </main>
+
     <script>window.TEST_MODE_NO_LOGIN = false;</script>
-    <script src="../js/config.js?v=51"></script>
-    <script src="../js/components.js?v=51"></script>
-    <script src="../js/auth.js?v=51"></script>
+    <script src="../js/config.js?v=58"></script>
+    <script src="../js/components.js?v=58"></script>
+    <script src="../js/auth.js?v=58"></script>
     <script>
-        requireAccess({ roles: ['admin'], loginPath: '../login.html' });
+        const client = createSupabaseClient();
+        const loginBox = document.getElementById('loginBox');
+        const dashboardBox = document.getElementById('dashboardBox');
+        const form = document.getElementById('pncLoginForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginMessage = document.getElementById('loginMessage');
+        const loginButton = document.getElementById('loginButton');
+        const pncEmail = 'pnc2026@villimaledhaaira.local';
+
+        function showMessage(message, type = 'error') { loginMessage.className = 'message ' + type; loginMessage.textContent = message; }
+        function setLoading(on) { loginButton.disabled = on; loginButton.textContent = on ? 'Checking...' : 'Login'; }
+        document.getElementById('togglePassword').addEventListener('click', () => {
+            const hidden = passwordInput.type === 'password';
+            passwordInput.type = hidden ? 'text' : 'password';
+            document.getElementById('togglePassword').innerHTML = hidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        });
+
+        async function loadPncStats(role) {
+            loginBox.classList.add('hidden');
+            dashboardBox.classList.remove('hidden');
+            document.getElementById('adminAllVotersLink').style.display = role.role === 'admin' ? '' : 'none';
+            const { data, error } = await client.from('full_import').select('id,reach_status,vote_status').eq('party','PNC');
+            const rows = error ? [] : (data || []);
+            document.getElementById('pncTotal').textContent = rows.length;
+            document.getElementById('pncReached').textContent = rows.filter(v => normalizeReachStatus(v.reach_status) === 'reached').length;
+            document.getElementById('pncWillVote').textContent = rows.filter(v => normalizeVoteStatus(v.vote_status) === 'will-vote').length;
+            document.getElementById('pncPending').textContent = rows.filter(v => normalizeVoteStatus(v.vote_status) === 'pending').length;
+        }
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            if (usernameInput.value.trim().toLowerCase() !== 'pnc2026') { showMessage('Username is not correct.'); return; }
+            setLoading(true);
+            const { error } = await client.auth.signInWithPassword({ email: pncEmail, password: passwordInput.value });
+            if (error) { showMessage('Password is not correct.'); setLoading(false); return; }
+            const role = await getActiveRole();
+            if (!role || (role.role !== 'admin' && role.party !== 'PNC')) { await client.auth.signOut(); showMessage('This page is PNC only.'); setLoading(false); return; }
+            showMessage('Login successful.', 'success');
+            await loadPncStats(role);
+        });
+
+        getActiveRole().then(role => {
+            if (role && (role.role === 'admin' || role.party === 'PNC')) loadPncStats(role);
+        });
     </script>
 </body>
 </html>
