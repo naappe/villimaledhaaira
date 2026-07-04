@@ -65,6 +65,8 @@ function compactName(value) {
 
 function addressKey(value) {
     return normalizeText(value)
+        .replace(/\bnors\b/g, ' ')
+        .replace(/\bno\s*rs\b/g, ' ')
         .replace(/\b(dhaftharu|house|flat|male|dh|no|rs|m|h|d)\b/g, '')
         .replace(/\s+/g, ' ')
         .trim();
@@ -72,6 +74,10 @@ function addressKey(value) {
 
 function exactKey(name, address, digits) {
     return [compactName(name), addressKey(address), String(digits || '').trim()].join('|');
+}
+
+function nameHouseKey(name, address) {
+    return [compactName(name), addressKey(address)].join('|');
 }
 
 function lastDigits(value) {
@@ -112,7 +118,7 @@ async function fetchAllRows() {
     while (true) {
         const { data, error } = await client
             .from(TABLE_NAME)
-            .select('id,name,national_id,house,lives_in,phone,party,sex,age,photo_url,election_box,election_list_match,election_source_row')
+            .select('id,name,national_id,house,lives_in,phone,party,sex,age,photo_url,election_box,election_list_match,election_source_row,election_review_status')
             .order('image_number', { ascending: true })
             .range(from, from + pageSize - 1);
 
@@ -137,16 +143,20 @@ function pushIndex(map, key, row) {
 
 function buildIndexes(rows) {
     const exact = new Map();
+    const nameHouse = new Map();
+    const houseOnly = new Map();
 
     rows.forEach(row => {
         const address = rowAddress(row);
+        pushIndex(nameHouse, nameHouseKey(row.name, address), row);
+        pushIndex(houseOnly, addressKey(address), row);
         const digitKeys = visibleDigitKeys(row.national_id);
         digitKeys.forEach(digits => {
             pushIndex(exact, exactKey(row.name, address, digits), row);
         });
     });
 
-    return { exact };
+    return { exact, nameHouse, houseOnly };
 }
 
 function candidateSuggestions(pdfRow, matchedDbIds) {
@@ -225,12 +235,22 @@ function electionSuggestions(dbRow, matchedElectionRows) {
 
 function bestIndexedMatch(pdfRow, indexes) {
     const exactMatches = indexes.exact.get(exactKey(pdfRow.name, pdfRow.address, pdfRow.visibleDigits)) || [];
-    if (exactMatches.length) {
+    if (exactMatches.length === 1) {
         return {
             score: 100,
             reasons: ['exact name + address + ID ending'],
             row: exactMatches[0],
             matchCount: exactMatches.length
+        };
+    }
+
+    const nameHouseMatches = indexes.nameHouse.get(nameHouseKey(pdfRow.name, pdfRow.address)) || [];
+    if (nameHouseMatches.length === 1) {
+        return {
+            score: 92,
+            reasons: ['full name + house match'],
+            row: nameHouseMatches[0],
+            matchCount: nameHouseMatches.length
         };
     }
 
@@ -243,9 +263,12 @@ function analyzeRows() {
     const indexes = buildIndexes(dbRows);
 
     dbRows.forEach(row => {
-        if (row.election_source_row && String(row.election_list_match || '').startsWith('confirmed:')) {
+        if (
+            row.election_review_status === 'matched_updated_election' ||
+            (row.election_source_row && String(row.election_list_match || '').startsWith('confirmed:'))
+        ) {
             dbMatchedIds.add(row.id);
-            electionMatchedRows.add(row.election_source_row);
+            if (row.election_source_row) electionMatchedRows.add(row.election_source_row);
         }
     });
 
@@ -263,12 +286,13 @@ function analyzeRows() {
             };
         }
         const best = bestIndexedMatch(pdfRow, indexes);
+        const houseMatchCount = (indexes.houseOnly.get(addressKey(pdfRow.address)) || []).length;
         const status = best && best.score >= 90 ? 'matched' : 'new';
         if (status === 'matched') {
             dbMatchedIds.add(best.row.id);
             electionMatchedRows.add(pdfRow.row);
         }
-        return { ...pdfRow, status, best };
+        return { ...pdfRow, status, best, houseMatchCount };
     });
 
     all.forEach(row => {
@@ -359,10 +383,10 @@ function getVisibleRows() {
 function render() {
     const rows = getVisibleRows();
     const titles = {
-        new: ['Need identify', 'These voters are in the new election list, but no exact database ID card/photo was found. Treat as new unless a review suggestion is confirmed.'],
-        keepDb: ['Keep DB / verify', 'These database voters were not exact matches, but they have election-list suggestions. Keep them in the database and verify the suggested election row.'],
-        missing: ['Not in election list', 'These database voters have no exact match and no useful election-list suggestion. Review before deciding removed, deceased, moved, or changed.'],
-        review: ['Needs review', 'Exact matches are hidden. This shows Need Identify, Keep DB / Verify, and Not in Election List.']
+        new: ['Need identify', 'Official election rows that did not exact-match a database card. Database suggestions appear below when the signals are strong.'],
+        keepDb: ['Keep DB / verify', 'Current database cards with an official election row suggestion. If correct, use the election name/box and keep database photo/phone/party.'],
+        missing: ['Not in election list', 'Current database cards with no exact match and no strong election suggestion. Review before deciding removed, deceased, moved, or changed.'],
+        review: ['Needs review', 'Exact matches are hidden. Review cards show official election data and current database data side by side where possible.']
     };
 
     resultsTitle.textContent = titles[currentView][0];
@@ -394,6 +418,9 @@ function renderCard(row) {
     const addressLabel = isDbReview ? 'Database house' : 'Election address';
     const boxLabel = isDbReview ? 'Party' : 'Election box';
     const reviewed = isReviewed(row);
+    const duplicateHouseWarning = !match && row.houseMatchCount > 1
+        ? `<div class="duplicate-house-alert"><i class="fas fa-triangle-exclamation"></i> House-only match is unsafe: ${row.houseMatchCount} database voters share this house. Use full name + house.</div>`
+        : '';
     return `
         <article class="card ${row.status} ${reviewed ? 'reviewed' : ''}">
             <div class="card-actions">
@@ -403,6 +430,10 @@ function renderCard(row) {
                 </button>
             </div>
             ${!match && row.status === 'new' ? '<div class="identity-alert"><i class="fas fa-id-card"></i> No database ID card/photo found</div>' : ''}
+            ${duplicateHouseWarning}
+            <div class="source-label ${isDbReview ? 'database-source' : 'election-source'}">
+                ${isDbReview ? 'Current database card' : 'Official election row'}
+            </div>
             <div class="name">${row.name || 'Unknown'}</div>
             <div class="row"><span>${idLabel}</span><strong>${row.maskedId || row.visibleDigits || 'Hidden'}</strong></div>
             <div class="row"><span>${addressLabel}</span><strong>${row.address || 'N/A'}</strong></div>
@@ -410,13 +441,13 @@ function renderCard(row) {
             <div class="row"><span>Sex</span><strong>${row.sex || 'N/A'}</strong></div>
             ${!match && suggestions.length ? `
                 <div class="suggestions">
-                    <div class="suggestions-title">Review database suggestions</div>
+                    <div class="suggestions-title">Current database card suggestions</div>
                     ${suggestions.map(item => renderSuggestion(item)).join('')}
                 </div>
             ` : ''}
             ${row.status === 'keep-db' && electionReviewSuggestions.length ? `
                 <div class="suggestions">
-                    <div class="suggestions-title">Review election-list suggestions</div>
+                    <div class="suggestions-title">Official election row suggestions</div>
                     ${electionReviewSuggestions.map(item => renderElectionSuggestion(item)).join('')}
                 </div>
             ` : ''}
@@ -466,7 +497,7 @@ function renderSuggestion(item) {
                 }
             </div>
             <div class="match-info">
-                <div class="match-title">Strong review suggestion</div>
+                <div class="match-title">Current database card</div>
                 <strong>${row.name || 'Unknown'}</strong>
                 <div class="match-row"><span>ID</span><b>${maskFullId(row.national_id)}</b></div>
                 <div class="match-row"><span>House</span><b>${rowAddress(row) || 'N/A'}</b></div>
@@ -482,7 +513,7 @@ function renderElectionSuggestion(item) {
     return `
         <div class="election-suggestion-card">
             <div class="match-info">
-                <div class="match-title">Strong election suggestion</div>
+                <div class="match-title">Official election row</div>
                 <strong>${row.name || 'Unknown'}</strong>
                 <div class="match-row"><span>Election ID</span><b>${row.maskedId || row.visibleDigits || 'Hidden'}</b></div>
                 <div class="match-row"><span>Address</span><b>${row.address || 'N/A'}</b></div>
@@ -503,7 +534,9 @@ async function init() {
         analyzeRows();
         const newWithSuggestions = analysis.new.filter(row => (row.suggestions || []).length).length;
         const reviewedCount = analysis.review.filter(row => isReviewed(row)).length;
-        loadStatus.textContent = `Excel rows: ${listCount}. Supabase rows: ${dbRows.length}. Exact matched hidden: ${analysis.matched.length}. Need identify: ${analysis.new.length} (${newWithSuggestions} with DB suggestions). Keep DB / verify: ${analysis.keepDb.length}. Not in election: ${analysis.missing.length}. Reviewed hidden: ${reviewedCount}.`;
+        const dbMatched = dbRows.filter(row => row.election_review_status === 'matched_updated_election').length;
+        const dbNotElection = dbRows.filter(row => row.election_review_status === 'not_in_updated_election_list').length;
+        loadStatus.textContent = `Excel rows: ${listCount}. Supabase rows: ${dbRows.length}. Database matched to updated election: ${dbMatched}. Not in updated election: ${dbNotElection}. Need identify left: ${analysis.new.length} (${newWithSuggestions} with DB suggestions). Reviewed hidden: ${reviewedCount}.`;
         render();
     } catch (error) {
         console.error(error);
