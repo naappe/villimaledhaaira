@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - Villimale Voter System</title>
+    <title>Admin Login - Villimale Dhaaira</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="css/style.css?v=55" />
+    <link rel="stylesheet" href="css/style.css?v=58" />
     <style>
         :root { --party-color: #2563eb; --btn-text: #ffffff; }
         body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #24243e); }
@@ -23,146 +23,71 @@
         .password-field input::placeholder { color: rgba(255,255,255,.45); }
         .password-field:focus-within { border-color: #2f6df6; box-shadow: 0 0 0 4px rgba(47,109,246,.18); }
         .toggle-password { height: 100%; border: 0; background: rgba(255,255,255,.08); color: rgba(255,255,255,.75); cursor: pointer; font-size: 15px; }
-        .toggle-password:hover { color: #fff; background: rgba(255,255,255,.14); }
         .remember-row { display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.7); font-weight: 700; margin: 8px 0 16px; }
         .remember-row input { width: 18px; height: 18px; accent-color: #2563eb; }
         .password-message { display: none; border-radius: 12px; padding: 11px 12px; font-size: 13px; font-weight: 800; margin-bottom: 14px; line-height: 1.35; }
         .password-message.error { display: block; background: rgba(239,68,68,.16); color: #fecaca; border: 1px solid rgba(239,68,68,.38); }
         .password-message.success { display: block; background: rgba(34,197,94,.15); color: #bbf7d0; border: 1px solid rgba(34,197,94,.35); }
-        .password-message.info { display: block; background: rgba(59,130,246,.16); color: #bfdbfe; border: 1px solid rgba(59,130,246,.35); }
-        .btn-unlock { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: #2563eb; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 9px; transition: transform .16s ease, opacity .16s ease; }
-        .btn-unlock:hover { transform: translateY(-1px); }
-        .btn-unlock:disabled { cursor: not-allowed; opacity: .7; transform: none; }
+        .btn-unlock { width: 100%; min-height: 48px; border: 0; border-radius: 12px; background: #2563eb; color: #fff; font-size: 16px; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 9px; }
+        .btn-unlock:disabled { cursor: not-allowed; opacity: .7; }
         .login-actions { display: flex; gap: 8px; margin-top: 16px; }
         .login-actions a { flex: 1; text-align: center; color: rgba(255,255,255,.68); text-decoration: none; font-size: 12px; font-weight: 800; padding: 8px; }
         .login-actions a:hover { color: #fff; }
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="password-overlay">
         <div class="password-box">
             <div class="lock-icon"><i class="fas fa-user-shield"></i></div>
-            <h2 id="pageTitle">Admin <span>Login</span></h2>
-            <p class="subtitle" id="pageSubtitle">Protected access for the voter dashboard</p>
-
+            <h2>Admin <span>Login</span></h2>
+            <p class="subtitle">Protected access for admin dashboard</p>
             <form id="loginForm">
                 <div class="admin-email" id="adminEmailLabel">naappe@gmail.com</div>
-                <div class="password-field"><input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required autofocus /><button type="button" class="toggle-password" data-target="passwordInput" aria-label="Show password"><i class="fas fa-eye"></i></button></div>
+                <div class="password-field"><input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required autofocus /><button type="button" class="toggle-password" id="togglePassword" aria-label="Show password"><i class="fas fa-eye"></i></button></div>
                 <div class="remember-row"><input type="checkbox" id="rememberInput" /><label for="rememberInput">Remember this device</label></div>
                 <div class="password-message" id="loginMessage"></div>
                 <button type="submit" class="btn-unlock" id="loginButton"><i class="fas fa-right-to-bracket"></i> <span>Login</span></button>
             </form>
-
-            <form id="resetForm" class="hidden">
-                <div class="password-field"><input type="password" id="newPasswordInput" placeholder="New password" autocomplete="new-password" required minlength="6" /><button type="button" class="toggle-password" data-target="newPasswordInput" aria-label="Show password"><i class="fas fa-eye"></i></button></div>
-                <div class="password-field"><input type="password" id="confirmPasswordInput" placeholder="Confirm new password" autocomplete="new-password" required minlength="6" /><button type="button" class="toggle-password" data-target="confirmPasswordInput" aria-label="Show password"><i class="fas fa-eye"></i></button></div>
-                <div class="password-message" id="resetMessage"></div>
-                <button type="submit" class="btn-unlock" id="resetButton"><i class="fas fa-key"></i> <span>Save New Password</span></button>
-            </form>
-
-            <div class="login-actions">
-                <a href="index.html">Home</a>
-                <a href="#" id="forgotPasswordLink">Reset password</a>
-            </div>
+            <div class="login-actions"><a href="index.html">Home</a></div>
         </div>
     </div>
 
     <script>window.TEST_MODE_NO_LOGIN = false;</script>
-    <script src="js/config.js?v=55"></script>
-    <script src="js/components.js?v=55"></script>
-    <script src="js/auth.js?v=55"></script>
+    <script src="js/config.js?v=58"></script>
+    <script src="js/components.js?v=58"></script>
+    <script src="js/auth.js?v=58"></script>
     <script>
         const form = document.getElementById('loginForm');
-        const resetForm = document.getElementById('resetForm');
         const passwordInput = document.getElementById('passwordInput');
         const rememberInput = document.getElementById('rememberInput');
         const loginMessage = document.getElementById('loginMessage');
-        const resetMessage = document.getElementById('resetMessage');
-        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
         const loginButton = document.getElementById('loginButton');
-        const resetButton = document.getElementById('resetButton');
-        const newPasswordInput = document.getElementById('newPasswordInput');
-        const confirmPasswordInput = document.getElementById('confirmPasswordInput');
         const adminEmail = String(window.ADMIN_EMAIL || 'naappe@gmail.com').trim().toLowerCase();
         const client = createSupabaseClient();
-
         document.getElementById('adminEmailLabel').textContent = adminEmail;
         rememberInput.checked = localStorage.getItem('villimaleRememberAdminEmail') === adminEmail;
-
-        function showMessage(el, message, type = 'info') { el.className = `password-message ${type}`; el.textContent = message; }
-        function clearMessage(el) { el.className = 'password-message'; el.textContent = ''; }
-        function setButton(button, isLoading, text, normalHtml) { button.disabled = isLoading; button.innerHTML = isLoading ? `<i class="fas fa-spinner fa-spin"></i> <span>${text}</span>` : normalHtml; }
-        function isRecoveryUrl() { return /type=recovery|access_token=|refresh_token=|code=/.test(window.location.href); }
-        function showResetMode(message = 'Enter your new password below.') {
-            form.classList.add('hidden'); resetForm.classList.remove('hidden'); forgotPasswordLink.textContent = 'Back to login';
-            document.getElementById('pageTitle').innerHTML = 'Set <span>Password</span>';
-            document.getElementById('pageSubtitle').textContent = 'Create a new password for the admin account';
-            showMessage(resetMessage, message, 'info'); newPasswordInput.focus();
-        }
-        function showLoginMode() {
-            resetForm.classList.add('hidden'); form.classList.remove('hidden'); forgotPasswordLink.textContent = 'Reset password';
-            document.getElementById('pageTitle').innerHTML = 'Admin <span>Login</span>';
-            document.getElementById('pageSubtitle').textContent = 'Protected access for the voter dashboard';
-            clearMessage(resetMessage); passwordInput.focus();
-        }
-
-        document.querySelectorAll('.toggle-password').forEach(button => {
-            button.addEventListener('click', () => {
-                const input = document.getElementById(button.dataset.target);
-                const isHidden = input.type === 'password';
-                input.type = isHidden ? 'text' : 'password';
-                button.innerHTML = isHidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
-                input.focus();
-            });
+        function showMessage(message, type = 'error') { loginMessage.className = `password-message ${type}`; loginMessage.textContent = message; }
+        function clearMessage() { loginMessage.className = 'password-message'; loginMessage.textContent = ''; }
+        function setButton(isLoading, text) { loginButton.disabled = isLoading; loginButton.innerHTML = isLoading ? `<i class="fas fa-spinner fa-spin"></i> <span>${text}</span>` : '<i class="fas fa-right-to-bracket"></i> <span>Login</span>'; }
+        document.getElementById('togglePassword').addEventListener('click', () => {
+            const hidden = passwordInput.type === 'password';
+            passwordInput.type = hidden ? 'text' : 'password';
+            document.getElementById('togglePassword').innerHTML = hidden ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+            passwordInput.focus();
         });
-
-        if (isRecoveryUrl()) {
-            showResetMode('Reset link accepted. Enter a new password.');
-        }
-
-        client.auth.onAuthStateChange((event) => {
-            if (event === 'PASSWORD_RECOVERY') showResetMode('Reset link accepted. Enter a new password.');
-        });
-
         form.addEventListener('submit', async e => {
-            e.preventDefault(); clearMessage(loginMessage); setButton(loginButton, true, 'Checking password...', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>');
+            e.preventDefault(); clearMessage(); setButton(true, 'Checking...');
             try {
                 const { error } = await client.auth.signInWithPassword({ email: adminEmail, password: passwordInput.value });
-                if (error) { showMessage(loginMessage, 'Password is not correct. Please try again or reset it.', 'error'); setButton(loginButton, false, '', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>'); return; }
-                const user = await getActiveUser();
-                if (!user || String(user.email || '').toLowerCase() !== adminEmail) { await client.auth.signOut(); showMessage(loginMessage, 'Login blocked. This account is not allowed.', 'error'); setButton(loginButton, false, '', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>'); return; }
+                if (error) { showMessage('Password is not correct.'); setButton(false); return; }
+                const role = await getActiveRole();
+                if (!role || role.role !== 'admin') { await client.auth.signOut(); showMessage('This login is admin only.'); setButton(false); return; }
                 if (rememberInput.checked) localStorage.setItem('villimaleRememberAdminEmail', adminEmail); else localStorage.removeItem('villimaleRememberAdminEmail');
-                showMessage(loginMessage, 'Password correct. Opening dashboard...', 'success'); setButton(loginButton, true, 'Opening...', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>');
-                setTimeout(() => window.location.replace('all-voters.html'), 350);
-            } catch { showMessage(loginMessage, 'Login check failed. Please check internet and try again.', 'error'); setButton(loginButton, false, '', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>'); }
+                showMessage('Login successful. Opening dashboard...', 'success'); setButton(true, 'Opening...');
+                setTimeout(() => window.location.replace('all-voters.html'), 250);
+            } catch { showMessage('Login check failed. Please check internet and try again.'); setButton(false); }
         });
-
-        resetForm.addEventListener('submit', async e => {
-            e.preventDefault(); clearMessage(resetMessage);
-            const newPassword = newPasswordInput.value;
-            if (newPassword.length < 6) { showMessage(resetMessage, 'Password must be at least 6 characters.', 'error'); return; }
-            if (newPassword !== confirmPasswordInput.value) { showMessage(resetMessage, 'Passwords do not match.', 'error'); return; }
-            setButton(resetButton, true, 'Saving...', '<i class="fas fa-key"></i> <span>Save New Password</span>');
-            const { error } = await client.auth.updateUser({ password: newPassword });
-            setButton(resetButton, false, '', '<i class="fas fa-key"></i> <span>Save New Password</span>');
-            if (error) { showMessage(resetMessage, error.message || 'Could not save password. Request a new reset link.', 'error'); return; }
-            showMessage(resetMessage, 'Password changed successfully. Opening dashboard...', 'success');
-            setTimeout(() => window.location.replace('all-voters.html'), 900);
-        });
-
-        forgotPasswordLink.addEventListener('click', async e => {
-            e.preventDefault();
-            if (!resetForm.classList.contains('hidden')) { showLoginMode(); return; }
-            clearMessage(loginMessage); setButton(loginButton, true, 'Sending reset...', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>');
-            const { error } = await client.auth.resetPasswordForEmail(adminEmail, { redirectTo: window.location.origin + window.location.pathname });
-            setButton(loginButton, false, '', '<i class="fas fa-right-to-bracket"></i> <span>Login</span>');
-            showMessage(loginMessage, error ? 'Email limit reached or reset failed. Wait a few minutes and try again.' : `Password reset email sent to ${adminEmail}.`, error ? 'error' : 'success');
-        });
-
-        if (!isRecoveryUrl()) {
-            getActiveRole().then(role => { if (role) { showMessage(loginMessage, 'Already logged in. Opening dashboard...', 'success'); setTimeout(() => window.location.replace('all-voters.html'), 400); } });
-        }
+        getActiveRole().then(role => { if (role && role.role === 'admin') window.location.replace('all-voters.html'); });
     </script>
 </body>
 </html>
