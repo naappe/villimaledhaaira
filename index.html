@@ -88,8 +88,8 @@
                         <div class="party-card-name" style="color: #1abc9c;">PNC</div>
                         <div class="party-card-full">Peoples National Congress</div>
                         <div class="party-card-stats">
-                            <span class="voter-count" id="pncVoterCount">Loading voters...</span>
-                            <span class="reg-date">31 Jan 2019</span>
+                            <span class="voter-count" id="pncVoterCount">Loading matched voters...</span>
+                            <span class="reg-date">List total: 428</span>
                         </div>
                     </div>
                     <div class="party-card-arrow" style="color: #1abc9c;"><i class="fas fa-chevron-right"></i></div>
@@ -116,10 +116,10 @@
 
             const countTargets = [
                 { party: 'MDP', elementId: 'mdpVoterCount' },
-                { party: 'PNC', elementId: 'pncVoterCount' }
+                { party: 'PNC', elementId: 'pncVoterCount', sourceTotal: 428 }
             ];
 
-            await Promise.all(countTargets.map(async ({ party, elementId }) => {
+            await Promise.all(countTargets.map(async ({ party, elementId, sourceTotal }) => {
                 const target = document.getElementById(elementId);
                 if (!target) return;
 
@@ -128,7 +128,14 @@
                     .select('id', { count: 'exact', head: true })
                     .eq('party', party);
 
-                target.textContent = error ? 'Party dashboard' : `${count || 0} voters`;
+                if (error) {
+                    target.textContent = 'Party dashboard';
+                    return;
+                }
+
+                target.textContent = sourceTotal
+                    ? `${count || 0} matched of ${sourceTotal}`
+                    : `${count || 0} voters`;
             }));
         }
 
