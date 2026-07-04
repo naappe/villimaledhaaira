@@ -6,22 +6,42 @@
     client = window.supabase.createClient(
       window.SUPABASE_CONFIG.url,
       window.SUPABASE_CONFIG.publishableKey,
-      { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
     );
     return client;
   }
 
-  async function getActiveRole() {
-    const path = String(location.pathname || '').toLowerCase();
-    const party = new URLSearchParams(location.search).get('party');
-    if (path.includes('pnc-login') || String(party || '').toUpperCase() === 'PNC') {
-      return { role: 'party', party: 'PNC', home: 'all-voters.html?party=PNC', canEdit: true, user: { email: '' } };
-    }
-    return { role: 'admin', party: null, home: 'all-voters.html', canEdit: true, user: { email: '' } };
+  function resolveUserByUsername(username) {
+    const u = String(username || '').trim().toLowerCase();
+    return Object.values(window.LOGIN_USERS || {}).find(x => x.username.toLowerCase() === u) || null;
   }
 
-  async function loginWithUsername() {
-    return { ok: true };
+  function inferRoleFromPage() {
+    const party = String(new URLSearchParams(location.search).get('party') || '').toUpperCase();
+    const path = String(location.pathname || '').toLowerCase();
+    if (party === 'PNC' || path.includes('pnc-login')) {
+      return window.LOGIN_USERS?.pnc ? { ...window.LOGIN_USERS.pnc, user: { email: window.LOGIN_USERS.pnc.email } } : null;
+    }
+    return window.LOGIN_USERS?.admin ? { ...window.LOGIN_USERS.admin, user: { email: window.LOGIN_USERS.admin.email } } : null;
+  }
+
+  async function getActiveRole() {
+    const sb = createSupabaseClient();
+    if (sb) {
+      try {
+        const { data } = await sb.auth.getSession();
+        const email = String(data?.session?.user?.email || '').toLowerCase();
+        const role = Object.values(window.LOGIN_USERS || {}).find(x => x.email.toLowerCase() === email);
+        if (role) return { ...role, user: data.session.user };
+      } catch (e) {}
+    }
+    return inferRoleFromPage();
+  }
+
+  async function loginWithUsername(username, password) {
+    const mapped = resolveUserByUsername(username);
+    if (!mapped) return { error: 'Username is not correct.' };
+    return { role: mapped, ok: true };
   }
 
   async function requireAccess() {
