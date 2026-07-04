@@ -6,7 +6,7 @@
     <title>Election New List Analyzer</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="style.css?v=43" />
+    <link rel="stylesheet" href="style.css?v=50" />
 </head>
 <body>
     <main class="shell">
@@ -14,7 +14,7 @@
             <div>
                 <p class="eyebrow">Villimale Dhaaira</p>
                 <h1>Election New List Analyzer</h1>
-                <p>Compare the new election list with Supabase using name, address, and visible ID ending only.</p>
+                <p>Compare the new election list with Supabase using full name + house, with ID ending as the strongest confirmation.</p>
             </div>
             <a href="../index.html" class="home-link"><i class="fas fa-house"></i> Main Site</a>
         </section>
@@ -60,7 +60,7 @@
 
         <section class="note">
             <i class="fas fa-shield-halved"></i>
-            Full national IDs are not shown. The Excel list contains masked IDs, so strict matching uses trimmed name + trimmed address + visible ID ending.
+            Matching now uses full name + house as the safe key. House-only is never accepted, because houses like Wafaa can contain many voters.
         </section>
 
         <section class="load-status" id="loadStatus">Preparing analyzer...</section>
@@ -68,7 +68,7 @@
         <section class="results-head">
             <div>
                 <h2 id="resultsTitle">Need identify</h2>
-                <p id="resultsSubtitle">These voters are in the new election list, but no exact database ID card/photo was found. Treat as new unless a review suggestion is confirmed.</p>
+                <p id="resultsSubtitle">Left side is the official election row. Suggested database cards are shown below when address/name/ID ending are strong enough.</p>
             </div>
             <span id="resultCount">0</span>
         </section>
@@ -78,8 +78,8 @@
         </section>
     </main>
 
-    <script src="../js/config.js?v=43"></script>
-    <script src="election-list.js?v=43"></script>
-    <script src="analyzer.js?v=43"></script>
+    <script src="../js/config.js?v=50"></script>
+    <script src="election-list.js?v=50"></script>
+    <script src="analyzer.js?v=50"></script>
 </body>
 </html>
