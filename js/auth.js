@@ -1,5 +1,8 @@
 (() => {
-    const ADMIN_EMAIL_VALUE = String(window.ADMIN_EMAIL || '').trim().toLowerCase();
+    const USERS = {
+        'naappe@gmail.com': { role: 'admin', party: null, canEdit: true, canExport: true, home: 'all-voters.html' },
+        'pnc2026@villimaledhaaira.local': { role: 'party', party: 'PNC', canEdit: true, canExport: false, home: 'pages/pnc-tracker.html' }
+    };
     const IS_TEST_MODE_VALUE = window.APP_ALLOW_TEST_MODE === true && window.TEST_MODE_NO_LOGIN === true;
     let supabaseClientInstance = null;
 
@@ -21,10 +24,7 @@
         try { return await Promise.race([promise, timeout(ms)]); }
         catch (error) { return { error }; }
     }
-
-    function clearUnsafeLocalBypass() {
-        localStorage.removeItem('villimaleAdminSession');
-    }
+    function clearUnsafeLocalBypass() { localStorage.removeItem('villimaleAdminSession'); }
 
     async function getActiveUser() {
         clearUnsafeLocalBypass();
@@ -38,15 +38,25 @@
         return userResult.data.user;
     }
 
-    function isAdminUser(user) {
-        return !!ADMIN_EMAIL_VALUE && String(user && user.email || '').trim().toLowerCase() === ADMIN_EMAIL_VALUE;
+    function getUserRole(user) {
+        const email = String(user && user.email || '').trim().toLowerCase();
+        const profile = USERS[email];
+        if (!profile) return null;
+        return { user, role: profile.role, party: profile.party, canEdit: profile.canEdit, canExport: profile.canExport, home: profile.home };
+    }
+
+    function roleAllowed(roleInfo, options) {
+        if (!roleInfo) return false;
+        if (Array.isArray(options.roles) && options.roles.length && !options.roles.includes(roleInfo.role)) return false;
+        if (options.party && roleInfo.role !== 'admin' && roleInfo.party !== options.party) return false;
+        if (options.adminOnly && roleInfo.role !== 'admin') return false;
+        return true;
     }
 
     async function getActiveRole() {
-        if (IS_TEST_MODE_VALUE) return { user: null, role: 'admin', party: null, canEdit: true, canExport: true };
+        if (IS_TEST_MODE_VALUE) return { user: null, role: 'admin', party: null, canEdit: true, canExport: true, home: 'all-voters.html' };
         const user = await getActiveUser();
-        if (!user || !isAdminUser(user)) return null;
-        return { user, role: 'admin', party: null, canEdit: true, canExport: true };
+        return getUserRole(user);
     }
 
     function rootPrefix() {
@@ -61,7 +71,7 @@
 
     async function requireAccess(options = {}) {
         const roleInfo = await getActiveRole();
-        if (!roleInfo) {
+        if (!roleAllowed(roleInfo, options)) {
             window.location.replace(resolveAppPath(options.loginPath || 'login.html'));
             return null;
         }
@@ -70,14 +80,14 @@
 
     async function redirectByRole() {
         const roleInfo = await getActiveRole();
-        window.location.replace(resolveAppPath(roleInfo ? 'all-voters.html' : 'login.html'));
+        window.location.replace(resolveAppPath(roleInfo ? roleInfo.home : 'login.html'));
     }
 
     async function signOut() {
         clearUnsafeLocalBypass();
         const client = getAuthClient();
         if (client) await withTimeout(client.auth.signOut(), 1500);
-        window.location.replace(resolveAppPath('login.html'));
+        window.location.replace(resolveAppPath('index.html'));
     }
 
     window.createSupabaseClient = createSupabaseClient;
