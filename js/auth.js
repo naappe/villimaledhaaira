@@ -12,6 +12,11 @@
   }
 
   async function getActiveRole() {
+    const path = String(location.pathname || '').toLowerCase();
+    const party = new URLSearchParams(location.search).get('party');
+    if (path.includes('pnc-login') || String(party || '').toUpperCase() === 'PNC') {
+      return { role: 'party', party: 'PNC', home: 'all-voters.html?party=PNC', canEdit: true, user: { email: '' } };
+    }
     return { role: 'admin', party: null, home: 'all-voters.html', canEdit: true, user: { email: '' } };
   }
 
