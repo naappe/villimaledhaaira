@@ -7,18 +7,15 @@ const SUPABASE_CONFIG = {
     publishableKey: 'sb_publishable_xP8z74zcMuCkj6xlu1bJ3w_Kudqbcu1'
 };
 
-// Temporary testing switch.
-// true = no login needed, data is view-only
-// false = normal username/password login
-const TEST_MODE_NO_LOGIN = true;
+const TEST_MODE_NO_LOGIN = false;
+const ADMIN_EMAIL = 'naappe@gmail.com';
 
 // ============================================
-// PARTY AUTHENTICATION & DETAILS
+// PARTY DETAILS
 // ============================================
 
 const PARTY_AUTH = {
-    'MDP': {
-        password: 'mdp2024',
+    MDP: {
         shortName: 'MDP',
         fullName: 'Maldivian Democratic Party',
         color: '#f5a623',
@@ -30,8 +27,7 @@ const PARTY_AUTH = {
         partyColumn: 'party',
         partyValue: 'MDP'
     },
-    'PNC': {
-        password: 'pnc2024',
+    PNC: {
         shortName: 'PNC',
         fullName: 'Peoples National Congress',
         color: '#1abc9c',
@@ -45,14 +41,7 @@ const PARTY_AUTH = {
     }
 };
 
-// ============================================
-// EXPOSE TO GLOBAL SCOPE
-// ============================================
 window.SUPABASE_CONFIG = SUPABASE_CONFIG;
 window.PARTY_AUTH = PARTY_AUTH;
 window.TEST_MODE_NO_LOGIN = TEST_MODE_NO_LOGIN;
-
-console.log('✅ Config loaded');
-console.log('🏛️ Parties:', Object.keys(PARTY_AUTH).join(', '));
-console.log('📊 Using table: full_import');
-console.log('🧪 Test mode no login:', TEST_MODE_NO_LOGIN);
+window.ADMIN_EMAIL = ADMIN_EMAIL;
