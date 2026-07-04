@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Villimale Voter System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/style.css?v=43" />
+    <style>
+        :root {
+            --party-color: #2563eb;
+            --btn-text: #ffffff;
+        }
+
+        .login-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .login-actions a {
+            flex: 1;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.65);
+            text-decoration: none;
+            font-size: 12px;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="password-overlay">
+        <div class="password-box">
+            <div class="lock-icon"><i class="fas fa-user-shield"></i></div>
+            <h2>Villimale <span>Login</span></h2>
+            <p>Use your username and password</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="usernameInput" placeholder="Username: admin, mdp, or pnc" autocomplete="username" required autofocus />
+                </div>
+                <div class="form-group">
+                    <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password" required />
+                </div>
+                <div class="password-error" id="loginError"></div>
+                <button type="submit" class="btn-unlock"><i class="fas fa-right-to-bracket"></i> Login</button>
+            </form>
+            <div class="login-actions">
+                <a href="index.html">Back to home</a>
+                <a href="#" id="forgotPasswordLink">Forgot admin password?</a>
+            </div>
+        </div>
+    </div>
+
+    <script>window.TEST_MODE_NO_LOGIN = true;</script>
+    <script src="js/config.js?v=43"></script>
+    <script src="js/auth.js?v=43"></script>
+    <script>
+        const form = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('usernameInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginError = document.getElementById('loginError');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const USER_EMAILS = {
+            admin: 'naappe@gmail.com',
+            mdp: 'mdp@villimale.local',
+            pnc: 'pnc@villimale.local'
+        };
+
+        function usernameToEmail(value) {
+            const username = String(value || '').trim().toLowerCase();
+            if (username.includes('@')) return username;
+            return USER_EMAILS[username] || `${username}@villimale.local`;
+        }
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            loginError.style.display = 'none';
+
+            const client = createSupabaseClient();
+            const { error } = await client.auth.signInWithPassword({
+                email: usernameToEmail(usernameInput.value),
+                password: passwordInput.value
+            });
+
+            if (error) {
+                loginError.textContent = error.message || 'Login failed';
+                loginError.style.display = 'block';
+                return;
+            }
+
+            await redirectByRole();
+        });
+
+        forgotPasswordLink.addEventListener('click', async e => {
+            e.preventDefault();
+            loginError.style.display = 'none';
+
+            const client = createSupabaseClient();
+            const { error } = await client.auth.resetPasswordForEmail('naappe@gmail.com', {
+                redirectTo: window.location.origin + window.location.pathname
+            });
+
+            loginError.textContent = error
+                ? (error.message || 'Could not send reset email')
+                : 'Password reset email sent to naappe@gmail.com';
+            loginError.style.display = 'block';
+        });
+
+        getActiveRole().then(role => {
+            if (role) redirectByRole();
+        });
+    </script>
+</body>
+</html>
