@@ -3,99 +3,61 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Voter Management System</title>
+    <title>Villimale Dhaaira</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-    <link rel="stylesheet" href="css/style.css?v=51" />
+    <link rel="stylesheet" href="css/style.css?v=57" />
 </head>
 <body>
-
     <div class="party-selection-overlay" id="partySelection">
         <div class="party-selection-box">
             <div class="party-selection-icon"><i class="fas fa-vote-yea"></i></div>
             <h2>Villimale Dhaaira</h2>
-            <p class="subtitle">Admin dashboard</p>
+            <p class="subtitle">Choose dashboard</p>
 
             <div class="party-grid">
-                <a href="all-voters.html" class="party-card" style="border-color: #2563eb; text-decoration: none;">
-                    <div class="party-card-icon" style="background: #2563eb; color: white;"><i class="fas fa-users-viewfinder"></i></div>
+                <a href="login.html" class="party-card" style="border-color: #2563eb; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #2563eb; color: white;"><i class="fas fa-user-shield"></i></div>
                     <div class="party-card-info">
-                        <div class="party-card-name" style="color: #2563eb;">All Voters</div>
-                        <div class="party-card-full">Search, filter, call status, vote status, and notes</div>
-                        <div class="party-card-stats"><span class="voter-count">Full dashboard</span><span class="reg-date">Admin only</span></div>
+                        <div class="party-card-name" style="color: #2563eb;">Admin Login</div>
+                        <div class="party-card-full">Full dashboard access</div>
+                        <div class="party-card-stats"><span class="voter-count">Admin only</span><span class="reg-date">Protected</span></div>
                     </div>
                     <div class="party-card-arrow" style="color: #2563eb;"><i class="fas fa-chevron-right"></i></div>
-                </a>
-
-                <a href="new-list/index.html" class="party-card" style="border-color: #172033; text-decoration: none;">
-                    <div class="party-card-icon" style="background: #172033; color: white;"><i class="fas fa-list-check"></i></div>
-                    <div class="party-card-info">
-                        <div class="party-card-name" style="color: #172033;">New List Analyzer</div>
-                        <div class="party-card-full">Compare election list records with Supabase</div>
-                        <div class="party-card-stats"><span class="voter-count">Matching tool</span><span class="reg-date">Admin only</span></div>
-                    </div>
-                    <div class="party-card-arrow" style="color: #172033;"><i class="fas fa-chevron-right"></i></div>
-                </a>
-
-                <a href="pages/mdp-tracker.html" class="party-card" style="border-color: #f5a623; text-decoration: none;">
-                    <div class="party-card-icon" style="background: #f5a623; color: #1a1a2e;"><i class="fas fa-flag"></i></div>
-                    <div class="party-card-info">
-                        <div class="party-card-name" style="color: #f5a623;">MDP</div>
-                        <div class="party-card-full">Party tracker</div>
-                        <div class="party-card-stats"><span class="voter-count" id="mdpVoterCount">Loading...</span><span class="reg-date">26 Jun 2005</span></div>
-                    </div>
-                    <div class="party-card-arrow" style="color: #f5a623;"><i class="fas fa-chevron-right"></i></div>
                 </a>
 
                 <a href="pages/pnc-tracker.html" class="party-card" style="border-color: #1abc9c; text-decoration: none;">
                     <div class="party-card-icon" style="background: #1abc9c; color: white;"><i class="fas fa-users"></i></div>
                     <div class="party-card-info">
                         <div class="party-card-name" style="color: #1abc9c;">PNC</div>
-                        <div class="party-card-full">Party tracker</div>
-                        <div class="party-card-stats"><span class="voter-count" id="pncVoterCount">Loading...</span><span class="reg-date">List total: 428</span></div>
+                        <div class="party-card-full">PNC tracker</div>
+                        <div class="party-card-stats"><span class="voter-count" id="pncVoterCount">Open tracker</span><span class="reg-date">Protected</span></div>
                     </div>
                     <div class="party-card-arrow" style="color: #1abc9c;"><i class="fas fa-chevron-right"></i></div>
                 </a>
-            </div>
 
-            <div class="party-selection-footer">
-                <span>Signed in as admin</span>
-                <span class="total-voters"><a href="#" onclick="signOut(); return false;">Sign out</a></span>
+                <a href="pages/mdp-tracker.html" class="party-card" style="border-color: #f5a623; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #f5a623; color: #1a1a2e;"><i class="fas fa-flag"></i></div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #f5a623;">MDP</div>
+                        <div class="party-card-full">MDP tracker</div>
+                        <div class="party-card-stats"><span class="voter-count">Open tracker</span><span class="reg-date">Protected</span></div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #f5a623;"><i class="fas fa-chevron-right"></i></div>
+                </a>
+
+                <a href="new-list/index.html" class="party-card" style="border-color: #172033; text-decoration: none;">
+                    <div class="party-card-icon" style="background: #172033; color: white;"><i class="fas fa-list-check"></i></div>
+                    <div class="party-card-info">
+                        <div class="party-card-name" style="color: #172033;">New List Analyzer</div>
+                        <div class="party-card-full">Compare election list records</div>
+                        <div class="party-card-stats"><span class="voter-count">Admin only</span><span class="reg-date">Protected</span></div>
+                    </div>
+                    <div class="party-card-arrow" style="color: #172033;"><i class="fas fa-chevron-right"></i></div>
+                </a>
             </div>
         </div>
     </div>
-
-    <script>window.TEST_MODE_NO_LOGIN = false;</script>
-    <script src="js/config.js?v=51"></script>
-    <script src="js/components.js?v=51"></script>
-    <script src="js/auth.js?v=51"></script>
-    <script>
-        async function loadPartyCounts() {
-            const client = createSupabaseClient();
-            const countTargets = [
-                { party: 'MDP', elementId: 'mdpVoterCount' },
-                { party: 'PNC', elementId: 'pncVoterCount', sourceTotal: 428 }
-            ];
-
-            await Promise.all(countTargets.map(async ({ party, elementId, sourceTotal }) => {
-                const target = document.getElementById(elementId);
-                if (!target) return;
-
-                const { count, error } = await client
-                    .from('full_import')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('party', party);
-
-                target.textContent = error
-                    ? 'Open tracker'
-                    : (sourceTotal ? `${count || 0} matched of ${sourceTotal}` : `${count || 0} voters`);
-            }));
-        }
-
-        requireAccess({ roles: ['admin'], loginPath: 'login.html' }).then(role => {
-            if (role) loadPartyCounts();
-        });
-    </script>
 </body>
 </html>
