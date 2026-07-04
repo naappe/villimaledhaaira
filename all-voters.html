@@ -9,63 +9,55 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    <link rel="stylesheet" href="css/style.css?v=52" />
+    <link rel="stylesheet" href="css/style.css?v=53" />
     <script>window.TEST_MODE_NO_LOGIN = false;</script>
-    <script src="js/config.js?v=52"></script>
-    <script src="js/components.js?v=52"></script>
+    <script src="js/config.js?v=53"></script>
+    <script src="js/components.js?v=53"></script>
 
     <style>
         :root { --party-color: #2563eb; --light-color: #eff6ff; --btn-text: #ffffff; }
         body.auth-checking #mainApp,
         body.auth-checking .home-btn-container,
         body.auth-checking .popup-overlay { display: none !important; }
-        .auth-loading {
-            position: fixed; inset: 0; z-index: 9999; display: none; place-items: center;
-            background: linear-gradient(135deg, #0f0c29, #1a1a2e, #24243e); color: #fff;
-        }
+        .auth-loading { position: fixed; inset: 0; z-index: 9999; display: none; place-items: center; background: linear-gradient(135deg, #0f0c29, #1a1a2e, #24243e); color: #fff; }
         body.auth-checking .auth-loading { display: grid; }
-        .auth-loading-box { text-align: center; font-weight: 800; }
+        .auth-loading-box { text-align: center; font-weight: 800; max-width: 360px; padding: 24px; }
         .auth-loading-box i { color: #2563eb; font-size: 42px; margin-bottom: 12px; }
+        .auth-fallback { display: none; margin-top: 18px; gap: 10px; grid-template-columns: 1fr; }
+        .auth-fallback.show { display: grid; }
+        .auth-fallback a, .auth-fallback button { background: #2563eb; border: 0; border-radius: 10px; color: #fff; cursor: pointer; font-weight: 900; padding: 12px 16px; text-decoration: none; }
+        .auth-fallback button { background: rgba(255,255,255,.14); }
         .home-btn-container { position: fixed; top: 16px; left: 16px; z-index: 1000; display: flex; gap: 8px; }
-        .home-btn, .lock-btn {
-            display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.94); color: #172033;
-            padding: 8px 14px; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: .85rem;
-            border: 1px solid #d9cdbb; box-shadow: 0 2px 12px rgba(0,0,0,.08); cursor: pointer;
-        }
+        .home-btn, .lock-btn { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.94); color: #172033; padding: 8px 14px; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: .85rem; border: 1px solid #d9cdbb; box-shadow: 0 2px 12px rgba(0,0,0,.08); cursor: pointer; }
         #mainApp { padding-top: 66px; }
         .all-voters-page .container { max-width: 1180px; padding: 14px; }
-        .all-voters-page .filters-bar {
-            display: grid !important; grid-template-columns: minmax(240px, 1.45fr) repeat(4, minmax(130px, 1fr)) auto auto auto;
-            align-items: center; gap: 10px; position: sticky; top: 0; z-index: 80;
-        }
-        .all-voters-page .filters-bar .search-wrap,
-        .all-voters-page .filters-bar select,
-        .all-voters-page .filters-bar .btn,
-        .all-voters-page .view-toggle { min-width: 0; width: 100%; }
+        .all-voters-page .filters-bar { display: grid !important; grid-template-columns: minmax(240px, 1.45fr) repeat(4, minmax(130px, 1fr)) auto auto auto; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 80; }
+        .all-voters-page .filters-bar .search-wrap, .all-voters-page .filters-bar select, .all-voters-page .filters-bar .btn, .all-voters-page .view-toggle { min-width: 0; width: 100%; }
         .all-voters-page .filters-bar .badge { margin-left: 0; white-space: nowrap; }
         .all-voters-page .gallery-grid { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; gap: 16px !important; align-items: start !important; }
         .all-voters-page .gallery-grid:not(.list-view) .voter-card { display: block !important; width: 100% !important; max-width: none !important; min-width: 0 !important; overflow: hidden !important; }
         .all-voters-page .voter-card .photo { height: 150px !important; min-height: 0 !important; }
         .all-voters-page .voter-card .info { padding: 12px !important; min-width: 0 !important; }
-        .all-voters-page .voter-card .name,
-        .all-voters-page .clean-row strong,
-        .all-voters-page .clean-meta strong { white-space: normal !important; overflow-wrap: anywhere !important; word-break: normal !important; }
+        .all-voters-page .voter-card .name, .all-voters-page .clean-row strong, .all-voters-page .clean-meta strong { white-space: normal !important; overflow-wrap: anywhere !important; word-break: normal !important; }
         .all-voters-page .clean-row { grid-template-columns: 58px minmax(0, 1fr) !important; }
         .all-voters-page .clean-meta { display: grid !important; grid-template-columns: 1fr 1fr; gap: 6px !important; }
         .all-voters-page .assigned-line { margin-top: 8px; color: #6b7280; font-size: 11px; font-weight: 700; }
         .all-voters-page .gallery-grid.list-view .voter-card { display: grid !important; grid-template-columns: 86px 100px minmax(0, 1fr) !important; }
-        @media (max-width: 980px) {
-            .all-voters-page .filters-bar { grid-template-columns: 1fr 1fr !important; position: static; }
-            .all-voters-page .filters-bar .search-wrap, .all-voters-page .filters-bar .badge { grid-column: 1 / -1; }
-        }
-        @media (max-width: 560px) {
-            .all-voters-page .filters-bar, .all-voters-page .clean-meta { grid-template-columns: 1fr !important; }
-            .all-voters-page .gallery-grid { grid-template-columns: 1fr !important; }
-        }
+        @media (max-width: 980px) { .all-voters-page .filters-bar { grid-template-columns: 1fr 1fr !important; position: static; } .all-voters-page .filters-bar .search-wrap, .all-voters-page .filters-bar .badge { grid-column: 1 / -1; } }
+        @media (max-width: 560px) { .all-voters-page .filters-bar, .all-voters-page .clean-meta { grid-template-columns: 1fr !important; } .all-voters-page .gallery-grid { grid-template-columns: 1fr !important; } }
     </style>
 </head>
 <body class="all-voters-page auth-checking">
-    <div class="auth-loading"><div class="auth-loading-box"><i class="fas fa-user-shield"></i><div>Checking login...</div></div></div>
+    <div class="auth-loading">
+        <div class="auth-loading-box">
+            <i class="fas fa-user-shield"></i>
+            <div>Checking login...</div>
+            <div class="auth-fallback" id="authFallback">
+                <a href="login.html">Go to Login</a>
+                <button type="button" onclick="signOut()">Clear Session</button>
+            </div>
+        </div>
+    </div>
 
     <div class="home-btn-container">
         <a href="index.html" class="home-btn"><i class="fas fa-home"></i> Home</a>
@@ -82,7 +74,6 @@
                 <button type="button" data-quick="pnc">PNC</button>
                 <button type="button" data-quick="all">Show All</button>
             </div>
-
             <div class="stats-grid">
                 <div class="stat-card" data-filter="reached" onclick="filterByStatus('reached')"><div class="number" id="dashReached">0</div><div class="label">Reached</div><div class="sub" id="dashReachedPercent">0% reached</div></div>
                 <div class="stat-card" data-filter="not-reached" onclick="filterByStatus('not-reached')"><div class="number" id="dashNotReached">0</div><div class="label">Not Reached</div><div class="sub">Need contact</div></div>
@@ -91,14 +82,8 @@
                 <div class="stat-card" data-filter="not-decided" onclick="filterByStatus('not-decided')"><div class="number" id="dashNotDecided">0</div><div class="label">Not Decided</div><div class="sub">Follow up</div></div>
                 <div class="stat-card" data-filter="no-vote" onclick="filterByStatus('no-vote')"><div class="number" id="dashNoVote">0</div><div class="label">No Vote</div><div class="sub">Will not vote</div></div>
             </div>
-
-            <div class="top-houses">
-                <div class="header"><h3><i class="fas fa-trophy"></i> Top Houses / Dhafthar Numbers</h3><span id="topHousesCount"></span></div>
-                <div class="top-houses-grid" id="topHousesGrid"><div class="loading-state" style="padding:12px 0; grid-column:1/-1;">Loading...</div></div>
-            </div>
-
+            <div class="top-houses"><div class="header"><h3><i class="fas fa-trophy"></i> Top Houses / Dhafthar Numbers</h3><span id="topHousesCount"></span></div><div class="top-houses-grid" id="topHousesGrid"><div class="loading-state" style="padding:12px 0; grid-column:1/-1;">Loading...</div></div></div>
             <div class="chart-section"><canvas id="statusChart"></canvas></div>
-
             <div class="filters-bar">
                 <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Search name, ID, house, phone..." /></div>
                 <select id="partyFilter"><option value="">All Parties</option><option value="MDP">MDP</option><option value="PNC">PNC</option></select>
@@ -110,7 +95,6 @@
                 <button class="btn btn-reset" id="resetBtn"><i class="fas fa-undo"></i> Reset</button>
                 <span class="badge" id="filterCount">Showing <strong>0</strong></span>
             </div>
-
             <div class="gallery-grid" id="voterGrid"><div class="loading-state">Loading voters...</div></div>
         </div>
     </div>
@@ -122,13 +106,7 @@
             <div class="popup-name" id="popupName">Name</div>
             <div class="popup-id" id="popupId">ID</div>
             <div class="popup-details">
-                <span class="label" id="popupHouseLabel">House</span><span class="value" id="popupHouse">N/A</span>
-                <span class="label">Phone</span><span class="value" id="popupPhone">N/A</span>
-                <span class="label">Age</span><span class="value" id="popupAge">N/A</span>
-                <span class="label">Sex</span><span class="value" id="popupSex">N/A</span>
-                <span class="label">Party</span><span class="value" id="popupParty">N/A</span>
-                <span class="label">Box</span><span class="value" id="popupElectionBox">Not matched</span>
-                <span class="label">Updated By</span><span class="value" id="popupAssignedBy">Not saved yet</span>
+                <span class="label" id="popupHouseLabel">House</span><span class="value" id="popupHouse">N/A</span><span class="label">Phone</span><span class="value" id="popupPhone">N/A</span><span class="label">Age</span><span class="value" id="popupAge">N/A</span><span class="label">Sex</span><span class="value" id="popupSex">N/A</span><span class="label">Party</span><span class="value" id="popupParty">N/A</span><span class="label">Box</span><span class="value" id="popupElectionBox">Not matched</span><span class="label">Updated By</span><span class="value" id="popupAssignedBy">Not saved yet</span>
             </div>
             <form id="popupForm">
                 <div class="form-group"><label><i class="fas fa-phone"></i> Phone</label><div class="phone-action-row"><input type="text" id="popupPhoneInput" placeholder="Enter phone number..." /><a href="#" class="call-action disabled" id="popupCallBtn"><i class="fas fa-phone"></i> Call</a></div></div>
@@ -142,8 +120,12 @@
         </div>
     </div>
 
-    <script src="js/auth.js?v=52"></script>
+    <script src="js/auth.js?v=53"></script>
     <script>
+        setTimeout(() => document.getElementById('authFallback')?.classList.add('show'), 3000);
+        setTimeout(() => {
+            if (document.body.classList.contains('auth-checking')) window.location.replace('login.html');
+        }, 5500);
         const baseRequireAccess = window.requireAccess;
         window.requireAccess = async function wrappedRequireAccess(...args) {
             const role = await baseRequireAccess(...args);
@@ -151,6 +133,6 @@
             return role;
         };
     </script>
-    <script src="js/all-voters.js?v=52"></script>
+    <script src="js/all-voters.js?v=53"></script>
 </body>
 </html>
