@@ -32,6 +32,32 @@ function render(page = state.currentPage) {
   document.body.classList.remove('menu-open');
 }
 
+async function importLegacyVendors() {
+  if (state.vendors.length || !state.supply.length) return 0;
+
+  const names = [...new Map(
+    state.supply
+      .map((item) => String(item.Vendor || '').trim())
+      .filter(Boolean)
+      .map((name) => [name.toLocaleLowerCase(), name])
+  ).values()];
+
+  if (!names.length) return 0;
+
+  let imported = 0;
+  for (const name of names) {
+    try {
+      await saveVendor({ name });
+      imported += 1;
+    } catch (error) {
+      console.warn(`Could not import vendor "${name}":`, error);
+    }
+  }
+
+  if (imported) state.vendors = await listVendors();
+  return imported;
+}
+
 async function loadAll() {
   setStatus('Loading data…');
 
@@ -63,7 +89,8 @@ async function loadAll() {
     console.info('Run supabase/schema.sql in the Supabase SQL Editor, then refresh this page.');
     console.groupEnd();
   } else {
-    setStatus('Connected to Supabase', 'success');
+    const imported = await importLegacyVendors();
+    setStatus(imported ? `Connected · ${imported} vendors imported` : 'Connected to Supabase', 'success');
   }
 
   render(location.hash.slice(1) || 'dashboard');
