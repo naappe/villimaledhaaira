@@ -1,5 +1,5 @@
 import { listSupply, listTransactions, listVendors, saveSupplyItem, deleteSupplyItem, createTransaction, saveVendor, deleteVendor } from './db.js?v=20260728-4';
-import { state, getSupplyById, getVendorById, calculateStockBySupplyId } from './state.js?v=20260728-4';
+import { state, getSupplyById, getVendorById, calculateStockBySupplyId } from './state.js';
 import { dashboardView, movementView, vendorsView, adminView } from './views.js?v=20260728-4';
 
 const root = document.querySelector('#page-root');
@@ -64,7 +64,7 @@ async function loadAll() {
     failed.forEach((item) => console.error(`${item.table}: ${item.message}`));
     console.groupEnd();
   } else {
-    const imported = await importLegacyVendors();
+    await importLegacyVendors();
     setStatus(`Connected · ${state.supply.length} items · ${state.vendors.length} vendors`, 'success');
   }
   render(location.hash.slice(1) || 'dashboard');
