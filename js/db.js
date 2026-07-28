@@ -1,4 +1,4 @@
-import { APP_CONFIG } from './config.js';
+import { APP_CONFIG } from './config.js?v=20260728-4';
 
 const { createClient } = window.supabase;
 export const db = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
