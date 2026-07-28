@@ -1,9 +1,10 @@
 import { listSupply, listTransactions, listVendors, saveSupplyItem, deleteSupplyItem, createTransaction, saveVendor, deleteVendor } from './db.js?v=20260728-4';
 import { state, getSupplyById, getVendorById, calculateStockBySupplyId } from './state.js';
-import { dashboardView, movementView, vendorsView, adminView } from './views.js?v=20260728-4';
+import { dashboardView, movementView, vendorsView, adminView } from './views.js?v=20260728-6';
 
 const root = document.querySelector('#page-root');
 const status = document.querySelector('#app-status');
+const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 });
 
 const pages = {
   dashboard: dashboardView,
@@ -22,6 +23,27 @@ function formPayload(form) {
   return Object.fromEntries(new FormData(form).entries());
 }
 
+function updateStockPreview(form = document.querySelector('#movement-form')) {
+  if (!form) return;
+  const preview = form.querySelector('#stock-preview');
+  const supplyId = Number(form.elements.supply_id?.value || 0);
+  const item = getSupplyById(supplyId);
+  if (!preview || !item) {
+    if (preview) preview.style.display = 'none';
+    return;
+  }
+
+  const current = calculateStockBySupplyId(supplyId);
+  const quantity = Math.max(0, Number(form.elements.quantity?.value || 0));
+  const after = form.dataset.direction === 'IN' ? current + quantity : current - quantity;
+  const unit = item.Unit || '';
+
+  preview.querySelector('[data-current-stock]').textContent = `${number.format(current)} ${unit}`.trim();
+  preview.querySelector('[data-after-stock]').textContent = `${number.format(after)} ${unit}`.trim();
+  preview.querySelector('[data-after-stock]').style.color = after < 0 ? '#b42318' : '';
+  preview.style.display = 'grid';
+}
+
 function render(page = state.currentPage) {
   state.currentPage = pages[page] ? page : 'dashboard';
   root.innerHTML = pages[state.currentPage]();
@@ -30,6 +52,7 @@ function render(page = state.currentPage) {
   });
   history.replaceState(null, '', `#${state.currentPage}`);
   document.body.classList.remove('menu-open');
+  updateStockPreview();
 }
 
 async function importLegacyVendors() {
@@ -69,6 +92,14 @@ async function loadAll() {
   }
   render(location.hash.slice(1) || 'dashboard');
 }
+
+document.addEventListener('input', (event) => {
+  if (event.target.closest('#movement-form') && ['supply_id', 'quantity'].includes(event.target.name)) updateStockPreview(event.target.form);
+});
+
+document.addEventListener('change', (event) => {
+  if (event.target.closest('#movement-form') && ['supply_id', 'quantity'].includes(event.target.name)) updateStockPreview(event.target.form);
+});
 
 document.addEventListener('click', async (event) => {
   const nav = event.target.closest('[data-page]');
@@ -112,8 +143,13 @@ document.addEventListener('submit', async (event) => {
     }
     if (form.id === 'movement-form') {
       const payload = formPayload(form); payload.direction = form.dataset.direction; payload.supply_id = Number(payload.supply_id); payload.vendor_id = payload.vendor_id ? Number(payload.vendor_id) : null; payload.quantity = Number(payload.quantity);
-      const currentStock = calculateStockBySupplyId(payload.supply_id); if (payload.direction === 'OUT' && payload.quantity > currentStock) throw new Error(`Insufficient stock. Available: ${currentStock}`);
-      const saved = await createTransaction(payload); state.transactions.unshift(saved); render(payload.direction === 'IN' ? 'supply-in' : 'supply-out'); return setStatus(`Supply ${payload.direction.toLowerCase()} saved`, 'success');
+      const item = getSupplyById(payload.supply_id);
+      const currentStock = calculateStockBySupplyId(payload.supply_id);
+      const afterStock = payload.direction === 'IN' ? currentStock + payload.quantity : currentStock - payload.quantity;
+      if (payload.direction === 'OUT' && payload.quantity > currentStock) throw new Error(`Insufficient stock. Available: ${number.format(currentStock)} ${item?.Unit || ''}`.trim());
+      const saved = await createTransaction(payload); state.transactions.unshift(saved);
+      render(payload.direction === 'IN' ? 'supply-in' : 'supply-out');
+      return setStatus(`${item?.Name || 'Item'}: ${number.format(currentStock)} → ${number.format(afterStock)} ${item?.Unit || ''}`, 'success');
     }
     if (form.id === 'vendor-form') {
       const payload = formPayload(form); const saved = await saveVendor(payload, state.editingVendorId);
