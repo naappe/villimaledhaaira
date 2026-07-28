@@ -93,8 +93,7 @@ export function adminView() {
           <div class="field"><label>Unit</label><input class="input" name="Unit" placeholder="kg, pcs, box"></div>
           <div class="field"><label>Rate</label><input class="input" type="number" min="0" step="0.0001" name="Rate"></div>
           <div class="field"><label>Category</label><input class="input" name="Catogories"></div>
-          <div class="field"><label>Legacy Vendor</label><input class="input" name="Vendor"></div>
-          <div class="field"><label>Supply Request</label><input class="input" name="Supply Request"></div>
+          <div class="field"><label>Vendor</label><input class="input" name="Vendor"></div>
         </div>
         <div class="toolbar"><button class="btn btn-primary" type="submit">Save Item</button><button class="btn btn-secondary" type="reset">Clear</button></div>
       </form>
