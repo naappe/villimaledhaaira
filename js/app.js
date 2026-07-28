@@ -34,18 +34,38 @@ function render(page = state.currentPage) {
 
 async function loadAll() {
   setStatus('Loading data…');
-  const results = await Promise.allSettled([listSupply(), listTransactions(), listVendors()]);
+
+  const sources = [
+    { name: 'supply', request: listSupply() },
+    { name: 'supply_transactions', request: listTransactions() },
+    { name: 'supply_vendors', request: listVendors() }
+  ];
+
+  const results = await Promise.allSettled(sources.map((source) => source.request));
+
   state.supply = results[0].status === 'fulfilled' ? results[0].value : [];
   state.transactions = results[1].status === 'fulfilled' ? results[1].value : [];
   state.vendors = results[2].status === 'fulfilled' ? results[2].value : [];
 
-  const failed = results.filter((result) => result.status === 'rejected');
+  const failed = results
+    .map((result, index) => ({ result, table: sources[index].name }))
+    .filter(({ result }) => result.status === 'rejected')
+    .map(({ result, table }) => ({
+      table,
+      message: result.reason?.message || String(result.reason || 'Unknown database error')
+    }));
+
   if (failed.length) {
-    setStatus('Database setup required: run supabase/schema.sql.', 'warning');
-    console.warn('Some tables could not be loaded:', failed.map((result) => result.reason));
+    const failedNames = failed.map((item) => item.table).join(', ');
+    setStatus(`Setup required: ${failedNames}`, 'warning');
+    console.group('Supabase table load errors');
+    failed.forEach((item) => console.error(`${item.table}: ${item.message}`));
+    console.info('Run supabase/schema.sql in the Supabase SQL Editor, then refresh this page.');
+    console.groupEnd();
   } else {
     setStatus('Connected to Supabase', 'success');
   }
+
   render(location.hash.slice(1) || 'dashboard');
 }
 
