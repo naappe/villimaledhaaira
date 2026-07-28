@@ -48,6 +48,10 @@ export function movementView(direction) {
       <form class="card" id="movement-form" data-direction="${direction}">
         <h2>New ${isIn ? 'Receipt' : 'Issue'}</h2>
         <div class="field"><label>Supply item</label><select class="select" name="supply_id" required><option value="">Select item</option>${supplyOptions()}</select></div>
+        <div id="stock-preview" class="notice" style="margin:0 0 var(--space-4);display:none">
+          <div><strong>Current stock:</strong> <span data-current-stock>0</span></div>
+          <div><strong>${isIn ? 'Stock after receipt' : 'Stock after issue'}:</strong> <span data-after-stock>0</span></div>
+        </div>
         ${isIn ? `<div class="field"><label>Vendor</label><select class="select" name="vendor_id"><option value="">Select vendor</option>${vendorOptions()}</select></div>` : ''}
         <div class="form-grid">
           <div class="field"><label>Quantity</label><input class="input" type="number" min="0.001" step="0.001" name="quantity" required></div>
