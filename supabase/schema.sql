@@ -39,28 +39,40 @@ create index if not exists supply_transactions_direction_idx
 
 -- Copy distinct vendor names already stored in public.supply."Vendor".
 insert into public.supply_vendors (name)
-select distinct trim(s."Vendor")
+select distinct btrim(s."Vendor")
 from public.supply s
-where nullif(trim(s."Vendor"), '') is not null
+where nullif(btrim(s."Vendor"), '') is not null
 on conflict do nothing;
 
 alter table public.supply enable row level security;
 alter table public.supply_vendors enable row level security;
 alter table public.supply_transactions enable row level security;
 
--- Temporary public policies for a GitHub Pages application using a publishable key.
--- Replace these with authenticated role policies when login/admin accounts are added.
+-- GitHub Pages uses the Supabase publishable/anon role.
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on table public.supply to anon, authenticated;
+grant select, insert, update, delete on table public.supply_vendors to anon, authenticated;
+grant select, insert, update, delete on table public.supply_transactions to anon, authenticated;
+grant usage, select on all sequences in schema public to anon, authenticated;
+
+-- Temporary public policies for this browser-only application.
 drop policy if exists "public read supply" on public.supply;
-create policy "public read supply" on public.supply for select using (true);
+create policy "public read supply" on public.supply for select to anon, authenticated using (true);
 drop policy if exists "public write supply" on public.supply;
-create policy "public write supply" on public.supply for all using (true) with check (true);
+create policy "public write supply" on public.supply for all to anon, authenticated using (true) with check (true);
 
 drop policy if exists "public read supply vendors" on public.supply_vendors;
-create policy "public read supply vendors" on public.supply_vendors for select using (true);
+create policy "public read supply vendors" on public.supply_vendors for select to anon, authenticated using (true);
 drop policy if exists "public write supply vendors" on public.supply_vendors;
-create policy "public write supply vendors" on public.supply_vendors for all using (true) with check (true);
+create policy "public write supply vendors" on public.supply_vendors for all to anon, authenticated using (true) with check (true);
 
 drop policy if exists "public read supply transactions" on public.supply_transactions;
-create policy "public read supply transactions" on public.supply_transactions for select using (true);
+create policy "public read supply transactions" on public.supply_transactions for select to anon, authenticated using (true);
 drop policy if exists "public write supply transactions" on public.supply_transactions;
-create policy "public write supply transactions" on public.supply_transactions for all using (true) with check (true);
+create policy "public write supply transactions" on public.supply_transactions for all to anon, authenticated using (true) with check (true);
+
+-- Show verification counts after the migration finishes.
+select
+  (select count(*) from public.supply) as supply_items,
+  (select count(*) from public.supply_vendors) as vendors,
+  (select count(*) from public.supply_transactions) as movements;
