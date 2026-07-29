@@ -1,1 +1,49 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0d3c2a"><title>Villimalé Commerce System</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="css/complete-system.css?v=1"></head><body><div class="shell"><aside class="side"><div class="brand"><div class="mark">VC</div><div><strong>Villimalé Commerce</strong><small>Sales & Inventory System</small></div></div><div class="nav-group"><div class="nav-label">Overview</div><nav class="nav"><button data-page="dashboard"><span>01</span>Dashboard</button></nav></div><div class="nav-group"><div class="nav-label">Sales</div><nav class="nav"><button data-page="sales"><span>02</span>Sales / POS</button><button data-page="sales-history"><span>03</span>Sales History</button></nav></div><div class="nav-group"><div class="nav-label">Stock</div><nav class="nav"><button data-page="products"><span>04</span>Products</button><button data-page="inventory"><span>05</span>Inventory</button><button data-page="purchase"><span>06</span>Supply In</button><button data-page="stock-out"><span>07</span>Supply Out</button><button data-page="vendors"><span>08</span>Vendors</button></nav></div><div class="nav-group"><div class="nav-label">Control</div><nav class="nav"><button data-page="reports"><span>09</span>Reports</button><button data-page="admin"><span>10</span>Admin & Settings</button></nav></div></aside><main class="main"><header class="top"><button class="btn secondary mobile" data-menu>Menu</button><div class="top-title">Villimalé Complete Business System</div><div class="top-actions"><select class="theme" id="theme" aria-label="Theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select><span class="status">Local design mode</span></div></header><div class="page" id="page-root"></div></main></div><script type="module" src="js/complete-system.js?v=1"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#356ec9">
+  <title>Ewity POS · Sales Dashboard</title>
+  <link rel="stylesheet" href="css/01-tokens.css?v=1">
+  <link rel="stylesheet" href="css/02-reset.css?v=1">
+  <link rel="stylesheet" href="css/03-layout.css?v=1">
+  <link rel="stylesheet" href="css/04-sidebar.css?v=1">
+  <link rel="stylesheet" href="css/05-topbar.css?v=1">
+  <link rel="stylesheet" href="css/06-content.css?v=1">
+  <link rel="stylesheet" href="css/07-components.css?v=1">
+  <link rel="stylesheet" href="css/08-charts.css?v=1">
+  <link rel="stylesheet" href="css/09-responsive.css?v=1">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <a class="brand" href="./"><img src="assets/icons/logo.svg" alt=""><div class="brand-copy"><strong>Ewity</strong><small>/ v14.10</small></div></a>
+      <button class="register" id="register-btn">No Open Register</button>
+      <nav class="nav">
+        <button class="nav-item active"><span class="nav-icon">⌂</span><span class="nav-text">Home</span></button>
+        <button class="nav-parent" data-submenu="pos-menu"><span class="nav-icon">▣</span><span class="nav-text">Point of Sale</span><span class="chev">⌄</span></button>
+        <div class="submenu" id="pos-menu"><button class="nav-item">POS</button><button class="nav-item">Orders</button><button class="nav-item">Returns</button></div>
+        <button class="nav-item"><span class="nav-icon">♙</span><span class="nav-text">Customers</span></button>
+        <button class="nav-item"><span class="nav-icon">□</span><span class="nav-text">Products</span></button>
+        <button class="nav-item"><span class="nav-icon">▤</span><span class="nav-text">Inventory</span></button>
+        <button class="nav-item"><span class="nav-icon">◇</span><span class="nav-text">Ecommerce</span></button>
+        <button class="nav-item"><span class="nav-icon">$</span><span class="nav-text">Expenses</span></button>
+        <button class="nav-item"><span class="nav-icon">≡</span><span class="nav-text">Reports</span></button>
+        <button class="nav-parent" data-submenu="analytics-menu"><span class="nav-icon">↗</span><span class="nav-text">Analytics</span><span class="chev">⌄</span></button>
+        <div class="submenu" id="analytics-menu"><button class="nav-item">Sales</button><button class="nav-item">Traffic</button></div>
+        <button class="nav-parent" data-submenu="admin-menu"><span class="nav-icon">⚙</span><span class="nav-text">Admin</span><span class="chev">⌄</span></button>
+        <div class="submenu" id="admin-menu"><button class="nav-item">Users</button><button class="nav-item">Settings</button><button class="nav-item">Backup</button></div>
+      </nav>
+      <button class="help"><strong>Need Help?</strong><span>New! Help Videos</span></button>
+    </aside>
+    <div class="overlay"></div>
+    <main class="main">
+      <header class="topbar"><button class="toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button><div class="user"><img src="assets/images/avatar.svg" alt=""><div class="user-copy"><strong>Administrator</strong><small>Ewity</small></div></div></header>
+      <div class="content" id="content"></div>
+    </main>
+  </div>
+  <div class="modal" id="register-modal" hidden><div class="modal-card"><h2>Open Register</h2><p>Register controls are demonstrated without a backend.</p><div class="modal-actions"><button class="control" data-close-modal>Cancel</button><button class="apply" data-close-modal>Open Register</button></div></div></div>
+  <script type="module" src="js/app.js?v=1"></script>
+</body>
+</html>
