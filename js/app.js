@@ -1,172 +1,51 @@
-import { listSupply, listTransactions, listVendors, saveSupplyItem, deleteSupplyItem, createTransaction, saveVendor, deleteVendor } from './db.js?v=20260728-4';
-import { state, getSupplyById, getVendorById, calculateStockBySupplyId } from './state.js';
-import { dashboardView, movementView, vendorsView, adminView } from './views.js?v=20260729-7';
-import { installPageHelper } from './ui.js?v=20260729-2';
+import { DATA } from './data.js';
+import { initSidebar } from './sidebar.js';
+import { initFilters } from './filters.js';
+import { renderLineChart } from './charts.js';
+import { renderKPIs } from './kpi.js';
+import { renderTable } from './table.js';
 
-const root = document.querySelector('#page-root');
-const status = document.querySelector('#app-status');
-const number = new Intl.NumberFormat('en-US', { maximumFractionDigits: 3 });
-
-const pages = {
-  dashboard: dashboardView,
-  'supply-in': () => movementView('IN'),
-  'supply-out': () => movementView('OUT'),
-  vendors: vendorsView,
-  admin: adminView
+const state = {
+  sidebarCollapsed: false,
+  drawerOpen: false,
+  outletId: 'all',
+  dateRange: { ...DATA.meta.range },
+  sort: { key: 'revenue', dir: -1 }
 };
 
-function setStatus(message, type = 'info') {
-  status.textContent = message;
-  status.dataset.type = type;
+function filterSeries(rows) {
+  const { from, to } = state.dateRange;
+  return rows.filter(({ date }) => (!from || date >= from) && (!to || date <= to));
 }
 
-function formPayload(form) {
-  return Object.fromEntries(new FormData(form).entries());
+function renderDashboard() {
+  renderLineChart(filterSeries(DATA.series.netSales), document.querySelector('#net-sales-chart'), { money: true });
+  renderLineChart(filterSeries(DATA.series.salesCount), document.querySelector('#sales-count-chart'));
+  renderKPIs(DATA.kpis, document.querySelector('#kpi-grid'));
+  renderTable(DATA.topProducts, document.querySelector('#products-table'), state);
 }
 
-function updateStockPreview(form = document.querySelector('#movement-form')) {
-  if (!form) return;
-  const preview = form.querySelector('#stock-preview');
-  const supplyId = Number(form.elements.supply_id?.value || 0);
-  const item = getSupplyById(supplyId);
-  if (!preview || !item) {
-    if (preview) preview.style.display = 'none';
-    return;
-  }
-
-  const current = calculateStockBySupplyId(supplyId);
-  const quantity = Math.max(0, Number(form.elements.quantity?.value || 0));
-  const after = form.dataset.direction === 'IN' ? current + quantity : current - quantity;
-  const unit = item.Unit || '';
-
-  preview.querySelector('[data-current-stock]').textContent = `${number.format(current)} ${unit}`.trim();
-  preview.querySelector('[data-after-stock]').textContent = `${number.format(after)} ${unit}`.trim();
-  preview.querySelector('[data-after-stock]').style.color = after < 0 ? '#b42318' : '';
-  preview.style.display = 'grid';
-}
-
-function render(page = state.currentPage) {
-  state.currentPage = pages[page] ? page : 'dashboard';
-  root.innerHTML = pages[state.currentPage]();
-  document.querySelectorAll('[data-page]').forEach((button) => {
-    button.classList.toggle('active', button.dataset.page === state.currentPage);
+function initBanner() {
+  const banner = document.querySelector('#mobile-banner');
+  if (!banner) return;
+  if (localStorage.getItem('ewity-mobile-banner-dismissed') === 'true') banner.hidden = true;
+  document.querySelector('#dismiss-banner')?.addEventListener('click', () => {
+    banner.hidden = true;
+    localStorage.setItem('ewity-mobile-banner-dismissed', 'true');
   });
-  history.replaceState(null, '', `#${state.currentPage}`);
-  document.body.classList.remove('menu-open');
-  updateStockPreview();
-  installPageHelper();
-  window.setTimeout(installPageHelper, 0);
 }
 
-async function importLegacyVendors() {
-  if (state.vendors.length || !state.supply.length) return 0;
-  const names = [...new Map(state.supply.map((item) => String(item.Vendor || '').trim()).filter(Boolean).map((name) => [name.toLocaleLowerCase(), name])).values()];
-  if (!names.length) return 0;
-  let imported = 0;
-  for (const name of names) {
-    try { await saveVendor({ name }); imported += 1; }
-    catch (error) { console.warn(`Could not import vendor "${name}":`, error); }
-  }
-  if (imported) state.vendors = await listVendors();
-  return imported;
+async function bootstrap() {
+  const response = await fetch('./dashboard.html');
+  if (!response.ok) throw new Error(`Dashboard could not be loaded (${response.status})`);
+  document.querySelector('#content').innerHTML = await response.text();
+  initSidebar(state);
+  initFilters(DATA, state, renderDashboard);
+  initBanner();
+  renderDashboard();
 }
 
-async function loadAll() {
-  setStatus('Loading data…');
-  const sources = [
-    { name: 'supply', request: listSupply() },
-    { name: 'supply_transactions', request: listTransactions() },
-    { name: 'supply_vendors', request: listVendors() }
-  ];
-  const results = await Promise.allSettled(sources.map((source) => source.request));
-  state.supply = results[0].status === 'fulfilled' ? results[0].value : [];
-  state.transactions = results[1].status === 'fulfilled' ? results[1].value : [];
-  state.vendors = results[2].status === 'fulfilled' ? results[2].value : [];
-  console.info('Supabase rows loaded', { supply: state.supply.length, transactions: state.transactions.length, vendors: state.vendors.length });
-  const failed = results.map((result, index) => ({ result, table: sources[index].name })).filter(({ result }) => result.status === 'rejected').map(({ result, table }) => ({ table, message: result.reason?.message || String(result.reason || 'Unknown database error') }));
-  if (failed.length) {
-    setStatus(`Setup required: ${failed.map((item) => item.table).join(', ')}`, 'warning');
-    console.group('Supabase table load errors');
-    failed.forEach((item) => console.error(`${item.table}: ${item.message}`));
-    console.groupEnd();
-  } else {
-    await importLegacyVendors();
-    setStatus(`Connected · ${state.supply.length} items · ${state.vendors.length} vendors`, 'success');
-  }
-  render(location.hash.slice(1) || 'dashboard');
-}
-
-document.addEventListener('input', (event) => {
-  if (event.target.closest('#movement-form') && ['supply_id', 'quantity'].includes(event.target.name)) updateStockPreview(event.target.form);
+bootstrap().catch((error) => {
+  console.error(error);
+  document.querySelector('#content').innerHTML = `<section class="card load-error"><h1>Dashboard unavailable</h1><p>${error.message}</p></section>`;
 });
-
-document.addEventListener('change', (event) => {
-  if (event.target.closest('#movement-form') && ['supply_id', 'quantity'].includes(event.target.name)) updateStockPreview(event.target.form);
-});
-
-document.addEventListener('click', async (event) => {
-  const nav = event.target.closest('[data-page]');
-  if (nav) return render(nav.dataset.page);
-  if (event.target.closest('[data-menu-toggle]')) { document.body.classList.toggle('menu-open'); return; }
-  const editSupply = event.target.closest('[data-edit-supply]');
-  if (editSupply) {
-    state.editingSupplyId = Number(editSupply.dataset.editSupply); render('admin');
-    const item = getSupplyById(state.editingSupplyId); const form = document.querySelector('#supply-form');
-    Object.entries(item || {}).forEach(([key, value]) => { if (form.elements[key]) form.elements[key].value = value ?? ''; });
-    form.scrollIntoView({ behavior: 'smooth' }); return;
-  }
-  const removeSupply = event.target.closest('[data-delete-supply]');
-  if (removeSupply) {
-    const id = Number(removeSupply.dataset.deleteSupply); if (!confirm('Delete this supply item? Existing movements may depend on it.')) return;
-    try { await deleteSupplyItem(id); state.supply = state.supply.filter((item) => Number(item.id) !== id); render('admin'); setStatus('Supply item deleted', 'success'); }
-    catch (error) { setStatus(error.message, 'error'); } return;
-  }
-  const editVendor = event.target.closest('[data-edit-vendor]');
-  if (editVendor) {
-    state.editingVendorId = Number(editVendor.dataset.editVendor); render('vendors');
-    const vendor = getVendorById(state.editingVendorId); const form = document.querySelector('#vendor-form');
-    Object.entries(vendor || {}).forEach(([key, value]) => { if (form.elements[key]) form.elements[key].value = value ?? ''; }); return;
-  }
-  const removeVendor = event.target.closest('[data-delete-vendor]');
-  if (removeVendor) {
-    const id = Number(removeVendor.dataset.deleteVendor); if (!confirm('Delete this vendor?')) return;
-    try { await deleteVendor(id); state.vendors = state.vendors.filter((vendor) => Number(vendor.id) !== id); render('vendors'); setStatus('Vendor deleted', 'success'); }
-    catch (error) { setStatus(error.message, 'error'); }
-  }
-});
-
-document.addEventListener('submit', async (event) => {
-  event.preventDefault(); const form = event.target;
-  try {
-    if (form.id === 'supply-form') {
-      const payload = formPayload(form); payload.Rate = payload.Rate === '' ? null : Number(payload.Rate);
-      const saved = await saveSupplyItem(payload, state.editingSupplyId);
-      state.supply = state.editingSupplyId ? state.supply.map((item) => Number(item.id) === Number(saved.id) ? saved : item) : [...state.supply, saved];
-      state.editingSupplyId = null; render('admin'); return setStatus('Supply item saved', 'success');
-    }
-    if (form.id === 'movement-form') {
-      const payload = formPayload(form); payload.direction = form.dataset.direction; payload.supply_id = Number(payload.supply_id); payload.vendor_id = payload.vendor_id ? Number(payload.vendor_id) : null; payload.quantity = Number(payload.quantity);
-      const item = getSupplyById(payload.supply_id);
-      const currentStock = calculateStockBySupplyId(payload.supply_id);
-      const afterStock = payload.direction === 'IN' ? currentStock + payload.quantity : currentStock - payload.quantity;
-      if (payload.direction === 'OUT' && payload.quantity > currentStock) throw new Error(`Insufficient stock. Available: ${number.format(currentStock)} ${item?.Unit || ''}`.trim());
-      const saved = await createTransaction(payload); state.transactions.unshift(saved);
-      render(payload.direction === 'IN' ? 'supply-in' : 'supply-out');
-      return setStatus(`${item?.Name || 'Item'}: ${number.format(currentStock)} → ${number.format(afterStock)} ${item?.Unit || ''}`, 'success');
-    }
-    if (form.id === 'vendor-form') {
-      const payload = formPayload(form); const saved = await saveVendor(payload, state.editingVendorId);
-      state.vendors = state.editingVendorId ? state.vendors.map((vendor) => Number(vendor.id) === Number(saved.id) ? saved : vendor) : [...state.vendors, saved];
-      state.editingVendorId = null; render('vendors'); return setStatus('Vendor saved', 'success');
-    }
-  } catch (error) { console.error(error); setStatus(error.message, 'error'); }
-});
-
-document.addEventListener('reset', (event) => {
-  if (event.target.id === 'supply-form') state.editingSupplyId = null;
-  if (event.target.id === 'vendor-form') state.editingVendorId = null;
-  queueMicrotask(() => render(state.currentPage));
-});
-
-window.addEventListener('hashchange', () => render(location.hash.slice(1)));
-loadAll().catch((error) => { console.error(error); setStatus(error.message, 'error'); });
