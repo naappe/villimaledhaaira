@@ -1,0 +1,1 @@
+export const formatMoney=v=>new Intl.NumberFormat("en-US",{style:"currency",currency:"MVR"}).format(v);export const formatDate=v=>new Date(v+"T00:00:00").toLocaleDateString("en-GB",{day:"2-digit",month:"short"});export const pctDelta=v=>({text:`${v>0?"▲":v<0?"▼":"•"} ${Math.abs(v).toFixed(1)}%`,className:v>0?"up":v<0?"down":"flat"});
