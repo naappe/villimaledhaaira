@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f5134">
+  <title>Ewity API Connection Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{font-family:Inter,system-ui,sans-serif;color:#17352a;background:#edf5f0;color-scheme:light}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:32px 16px;background:linear-gradient(145deg,#edf5f0,#f8fbf9)}
+    .wrap{width:min(920px,100%);margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+    h1{margin:0;font-size:clamp(24px,4vw,36px);letter-spacing:-.04em}.sub{margin:7px 0 0;color:#5f746b;font-size:14px}.back{color:#0f6b48;text-decoration:none;font-weight:700}
+    .card{background:#fff;border:1px solid #dbe8e0;border-radius:20px;box-shadow:0 16px 50px rgba(31,74,54,.08);padding:24px;margin-bottom:18px}
+    .notice{display:flex;gap:12px;padding:14px 16px;border-radius:13px;background:#fff8e5;color:#6d5314;font-size:14px;line-height:1.55;margin-bottom:22px}
+    label{display:block;font-size:13px;font-weight:750;margin:0 0 7px}.grid{display:grid;grid-template-columns:1fr 180px;gap:14px}.field{margin-bottom:17px}
+    input,select{width:100%;min-height:48px;border:1px solid #cadbd1;border-radius:11px;background:#fbfdfc;padding:0 14px;font:inherit;color:#17352a;outline:none}
+    input:focus,select:focus{border-color:#198754;box-shadow:0 0 0 3px rgba(25,135,84,.12)}.url-row{display:flex;align-items:stretch}.base{display:flex;align-items:center;padding:0 13px;border:1px solid #cadbd1;border-right:0;border-radius:11px 0 0 11px;background:#eef5f1;color:#476258;font-size:13px;white-space:nowrap}.url-row input{border-radius:0 11px 11px 0}
+    button{min-height:48px;border:0;border-radius:11px;background:#16784f;color:#fff;padding:0 22px;font:inherit;font-weight:800;cursor:pointer}button:hover{background:#10633f}button:disabled{opacity:.55;cursor:wait}
+    .actions{display:flex;align-items:center;gap:14px}.status{font-size:14px;color:#60756c}.result-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.result-head h2{font-size:16px;margin:0}.pill{padding:6px 10px;border-radius:999px;background:#eef3f0;color:#52665d;font-size:12px;font-weight:800}.pill.ok{background:#e2f5e9;color:#12643d}.pill.bad{background:#fde8e7;color:#9e2d27}
+    pre{min-height:190px;max-height:480px;overflow:auto;margin:0;border-radius:13px;background:#10231c;color:#d7f5e5;padding:18px;white-space:pre-wrap;word-break:break-word;font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}
+    .hint{font-size:12px;color:#72857d;margin:8px 0 0}@media(max-width:680px){body{padding:20px 12px}.top{align-items:flex-start}.grid{grid-template-columns:1fr}.card{padding:18px}.url-row{display:block}.base{min-height:42px;border-right:1px solid #cadbd1;border-bottom:0;border-radius:11px 11px 0 0;overflow:auto}.url-row input{border-radius:0 0 11px 11px}.actions{align-items:stretch;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="top"><div><h1>Ewity API Test</h1><p class="sub">Test the Platform API connection and inspect its response.</p></div><a class="back" href="./">Back to app</a></div>
+    <section class="card">
+      <div class="notice"><span>🔒</span><div><strong>Your API key stays in this tab.</strong><br>It is used only for this request and is never saved in GitHub, local storage, or the page URL. Close the tab after testing.</div></div>
+      <form id="tester">
+        <div class="field"><label for="token">Ewity Platform API key</label><input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="plt_..." required></div>
+        <div class="grid">
+          <div class="field"><label for="endpoint">Endpoint path</label><div class="url-row"><span class="base">https://api.ewitypos.com/platform-v1/</span><input id="endpoint" value="" placeholder="Enter endpoint from Ewity documentation"></div><p class="hint">You can leave it empty to test the base URL, or enter a path supplied by Ewity.</p></div>
+          <div class="field"><label for="method">Method</label><select id="method"><option>GET</option><option>POST</option></select></div>
+        </div>
+        <div class="field" id="body-field" hidden><label for="request-body">JSON request body</label><input id="request-body" value="{}" spellcheck="false"></div>
+        <div class="actions"><button id="send" type="submit">Test connection</button><span class="status" id="progress">Ready</span></div>
+      </form>
+    </section>
+    <section class="card">
+      <div class="result-head"><h2>API response</h2><span class="pill" id="status-pill">Not tested</span></div>
+      <pre id="result">Enter your API key and press “Test connection”.</pre>
+    </section>
+  </main>
+  <script>
+    const baseUrl = 'https://api.ewitypos.com/platform-v1/';
+    const form = document.querySelector('#tester');
+    const method = document.querySelector('#method');
+    const bodyField = document.querySelector('#body-field');
+    const button = document.querySelector('#send');
+    const progress = document.querySelector('#progress');
+    const pill = document.querySelector('#status-pill');
+    const result = document.querySelector('#result');
+    method.addEventListener('change', () => { bodyField.hidden = method.value === 'GET'; });
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const token = document.querySelector('#token').value.trim();
+      const endpoint = document.querySelector('#endpoint').value.trim().replace(/^\/+/, '');
+      const url = baseUrl + endpoint;
+      button.disabled = true; progress.textContent = 'Connecting…'; pill.className = 'pill'; pill.textContent = 'Testing'; result.textContent = 'Requesting ' + url + '…';
+      try {
+        const options = {method: method.value, headers: {Authorization: 'Bearer ' + token, Accept: 'application/json'}};
+        if (method.value !== 'GET') {
+          options.headers['Content-Type'] = 'application/json';
+          const raw = document.querySelector('#request-body').value.trim() || '{}';
+          JSON.parse(raw); options.body = raw;
+        }
+        const started = performance.now();
+        const response = await fetch(url, options);
+        const elapsed = Math.round(performance.now() - started);
+        const text = await response.text();
+        let data; try { data = JSON.parse(text); } catch { data = text || '(empty response)'; }
+        pill.textContent = response.status + ' ' + response.statusText; pill.className = 'pill ' + (response.ok ? 'ok' : 'bad');
+        progress.textContent = 'Completed in ' + elapsed + ' ms';
+        result.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+      } catch (error) {
+        pill.textContent = 'Browser blocked'; pill.className = 'pill bad'; progress.textContent = 'Request failed';
+        result.textContent = error.name + ': ' + error.message + '\n\nIf the key is correct, this usually means Ewity does not allow browser requests (CORS). In that case the API must be connected through a secure server or Supabase Edge Function.';
+      } finally { button.disabled = false; }
+    });
+  </script>
+</body>
+</html>
