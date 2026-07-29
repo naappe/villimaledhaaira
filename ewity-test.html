@@ -43,7 +43,8 @@
     form.addEventListener('submit', async event => {
       event.preventDefault();
       const token = document.querySelector('#token').value.trim();
-      const endpoint = document.querySelector('#endpoint').value.trim().replace(/^\/+/, '');
+      const enteredEndpoint = document.querySelector('#endpoint').value.trim();
+      const endpoint = enteredEndpoint.replace(/^https:\/\/api\.ewitypos\.com\/platform-v1\/?/i, '').replace(/^\/+/, '');
       let requestBody = null;
       try { if (method.value === 'POST') requestBody = JSON.parse(document.querySelector('#request-body').value.trim() || '{}'); }
       catch { pill.textContent = 'Invalid JSON'; pill.className = 'pill bad'; result.textContent = 'The POST request body is not valid JSON.'; return; }
