@@ -1,0 +1,21 @@
+<section class="expenses-page">
+  <header class="expense-page-head">
+    <h1>Expenses</h1>
+    <button class="primary-btn" id="new-expense"><span>＋</span> New Expense</button>
+  </header>
+  <div class="expense-toolbar">
+    <label class="search-box"><span>⌕</span><input id="expense-search" type="search" placeholder="Search expenses…" autocomplete="off"></label>
+    <button class="filter-btn" id="expense-filter">▽ <span>Filter</span></button>
+    <select class="status-filter" id="expense-status" aria-label="Filter by status" hidden><option value="all">All statuses</option><option value="Paid">Paid</option><option value="Pending">Pending</option></select>
+  </div>
+  <section class="expense-kpis" aria-label="Expense summary">
+    <article class="expense-kpi"><span class="kpi-icon blue">$</span><div><small>Total Expenses</small><strong id="expense-total">MVR 0.00</strong></div></article>
+    <article class="expense-kpi"><span class="kpi-icon green">✓</span><div><small>This Month</small><strong id="expense-month">MVR 0.00</strong></div></article>
+    <article class="expense-kpi"><span class="kpi-icon orange">◷</span><div><small>Pending</small><strong id="expense-pending">0</strong></div></article>
+  </section>
+  <section class="expense-table-card">
+    <div class="expense-table-wrap"><table class="expense-table"><thead><tr><th>Date</th><th>Category</th><th>Reference</th><th>Note</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody id="expense-rows"></tbody></table></div>
+    <footer class="expense-table-footer"><span id="expense-count"></span><nav class="pagination" id="expense-pages" aria-label="Expense pages"></nav></footer>
+  </section>
+</section>
+<div class="modal" id="expense-modal" hidden><form class="modal-card expense-form" id="expense-form"><div class="modal-title"><h2 id="expense-modal-title">New Expense</h2><button type="button" data-expense-close aria-label="Close">×</button></div><div class="form-grid"><label>Date<input name="date" type="date" required></label><label>Category<select name="category" required><option>Marketing</option><option>Office Supplies</option><option>Utilities</option><option>Travel</option><option>Operations</option></select></label><label>Reference<input name="reference" required placeholder="EXP-00143"></label><label>Amount (MVR)<input name="amount" type="number" min="0" step="0.01" required></label><label class="form-wide">Note<input name="note" required placeholder="Expense description"></label><label>Status<select name="status"><option>Paid</option><option>Pending</option></select></label></div><div class="modal-actions"><button type="button" class="secondary-btn" data-expense-close>Cancel</button><button class="primary-btn" type="submit">Save Expense</button></div></form></div>
