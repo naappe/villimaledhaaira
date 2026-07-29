@@ -3,34 +3,35 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0f5134">
-  <title>Supply Management</title>
+  <meta name="theme-color" content="#102d22">
+  <meta name="description" content="Villimalé supply inventory, movements and vendor management.">
+  <title>Villimalé Supply Management</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css?v=20260729-1">
+  <link rel="stylesheet" href="css/app.css?v=20260729-2">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Main navigation">
       <div class="brand">
-        <div class="brand-mark">SM</div>
-        <div><strong>Supply Manager</strong><small>Inventory Control</small></div>
+        <div class="brand-mark" aria-hidden="true">VS</div>
+        <div><strong>Villimalé Supply</strong><small>Inventory Management</small></div>
       </div>
       <nav class="nav">
         <button class="nav-link" data-page="dashboard">Dashboard</button>
         <button class="nav-link" data-page="supply-in">Supply In</button>
         <button class="nav-link" data-page="supply-out">Supply Out</button>
         <button class="nav-link" data-page="vendors">Vendors</button>
-        <a class="nav-link" href="ewity-catalogue.html?v=20260729-4">Ewity Catalogue</a>
+        <a class="nav-link" href="ewity-catalogue.html?v=20260729-4">Catalogue</a>
         <button class="nav-link" data-page="admin">Admin</button>
       </nav>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <button class="btn btn-secondary mobile-menu" data-menu-toggle aria-label="Open menu">Menu</button>
-        <strong>Villimalé Supply System</strong>
+        <button class="btn btn-secondary mobile-menu" data-menu-toggle aria-label="Open navigation">Menu</button>
+        <strong>Supply Management</strong>
         <span id="app-status" class="badge">Starting…</span>
       </header>
       <div id="page-root" class="page" aria-live="polite"></div>
