@@ -1,6 +1,7 @@
 import { listSupply, listTransactions, listVendors, saveSupplyItem, deleteSupplyItem, createTransaction, saveVendor, deleteVendor } from './db.js?v=20260728-4';
 import { state, getSupplyById, getVendorById, calculateStockBySupplyId } from './state.js';
-import { dashboardView, movementView, vendorsView, adminView } from './views.js?v=20260728-6';
+import { dashboardView, movementView, vendorsView, adminView } from './views.js?v=20260729-7';
+import { installPageHelper } from './ui.js?v=20260729-1';
 
 const root = document.querySelector('#page-root');
 const status = document.querySelector('#app-status');
@@ -53,6 +54,8 @@ function render(page = state.currentPage) {
   history.replaceState(null, '', `#${state.currentPage}`);
   document.body.classList.remove('menu-open');
   updateStockPreview();
+  installPageHelper();
+  window.setTimeout(installPageHelper, 0);
 }
 
 async function importLegacyVendors() {
