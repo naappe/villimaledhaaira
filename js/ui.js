@@ -1,3 +1,43 @@
+const THEME_KEY = 'villimale-supply-theme';
+
+function resolvedTheme(preference) {
+  if (preference !== 'system') return preference;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme(preference) {
+  document.documentElement.dataset.theme = resolvedTheme(preference);
+  document.documentElement.dataset.themePreference = preference;
+}
+
+function installThemeControl() {
+  const topbar = document.querySelector('.topbar');
+  if (!topbar || document.querySelector('#globalThemeControl')) return;
+
+  const saved = localStorage.getItem(THEME_KEY) || 'system';
+  applyTheme(saved);
+
+  const control = document.createElement('label');
+  control.id = 'globalThemeControl';
+  control.className = 'theme-control';
+  control.innerHTML = `<span>Theme</span><select aria-label="Colour theme">
+    <option value="system">System</option>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+    <option value="high-contrast">High contrast</option>
+  </select>`;
+  control.querySelector('select').value = saved;
+  control.querySelector('select').addEventListener('change', (event) => {
+    localStorage.setItem(THEME_KEY, event.target.value);
+    applyTheme(event.target.value);
+  });
+  topbar.insertBefore(control, topbar.lastElementChild);
+
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    if ((localStorage.getItem(THEME_KEY) || 'system') === 'system') applyTheme('system');
+  });
+}
+
 const REGION_LABELS = Object.freeze({
   'page-header': 'Page Header',
   'filter-toolbar': 'Filter / Toolbar',
@@ -43,6 +83,7 @@ function detectedAreas() {
 }
 
 export function installPageHelper() {
+  installThemeControl();
   document.querySelector('#globalPageHelper')?.remove();
   clearHighlights();
 
