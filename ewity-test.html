@@ -21,7 +21,7 @@
       <form id="tester">
         <div class="field"><label for="token">Ewity Platform API key</label><input id="token" type="password" autocomplete="off" spellcheck="false" placeholder="plt_..." required></div>
         <div class="grid">
-          <div class="field"><label for="endpoint">Endpoint path</label><div class="url-row"><span class="base">https://api.ewitypos.com/platform-v1/</span><input id="endpoint" placeholder="Enter endpoint from Ewity documentation"></div><p class="hint">Leave empty to test the base URL, or enter an Ewity endpoint path.</p></div>
+          <div class="field"><label for="endpoint">Endpoint URL or path</label><div class="url-row"><input id="endpoint" value="https://api.ewitypos.com/platform-v1/stores" placeholder="https://api.ewitypos.com/platform-v1/stores"></div><p class="hint">Paste the complete Ewity URL or enter only the endpoint path, such as stores.</p></div>
           <div class="field"><label for="method">Method</label><select id="method"><option>GET</option><option>POST</option></select></div>
         </div>
         <div class="field" id="body-field" hidden><label for="request-body">JSON request body</label><input id="request-body" value="{}" spellcheck="false"></div>
