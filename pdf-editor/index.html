@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Private, browser-based PDF text editor">
+  <title>ClearPDF — Edit with confidence</title>
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="ClearPDF home"><span class="brand-mark">C</span><span>ClearPDF</span></a>
+    <div class="privacy"><span class="privacy-dot"></span> Files stay in your browser</div>
+    <div class="top-actions">
+      <button id="undoBtn" class="ghost" disabled>Undo</button>
+      <button id="newBtn" class="ghost" hidden>New PDF</button>
+      <button id="downloadBtn" class="primary" disabled>Download PDF</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="welcome" class="welcome">
+      <div class="eyebrow">PRIVATE PDF EDITING</div>
+      <h1>Change PDF text.<br><span>Keep everything else.</span></h1>
+      <p>Upload a text-based PDF, click the words you want to change, review the difference, and download. No account or cloud storage.</p>
+      <label id="dropZone" class="drop-zone">
+        <input id="fileInput" type="file" accept="application/pdf">
+        <span class="upload-icon">↑</span>
+        <strong>Drop a PDF here</strong>
+        <span>or click to choose a file</span>
+        <small>Text-based PDF · processed locally</small>
+      </label>
+      <div class="steps">
+        <div><b>01</b><span>Upload</span></div>
+        <i></i><div><b>02</b><span>Select text</span></div>
+        <i></i><div><b>03</b><span>Review</span></div>
+        <i></i><div><b>04</b><span>Download</span></div>
+      </div>
+    </section>
+
+    <section id="editor" class="editor" hidden>
+      <aside class="sidebar">
+        <div class="file-card">
+          <div class="file-icon">PDF</div>
+          <div><strong id="fileName">Document.pdf</strong><span id="fileMeta">Loading…</span></div>
+        </div>
+        <div class="side-title"><span>Pages</span><span id="pageCount"></span></div>
+        <div id="thumbnails" class="thumbnails"></div>
+      </aside>
+
+      <section class="workspace">
+        <div class="workspace-bar">
+          <span id="statusText">Click any highlighted text to edit</span>
+          <div class="zoom"><button id="zoomOut" aria-label="Zoom out">−</button><span id="zoomLabel">100%</span><button id="zoomIn" aria-label="Zoom in">+</button></div>
+        </div>
+        <div id="pages" class="pages"></div>
+      </section>
+
+      <aside class="changes-panel">
+        <div class="panel-head"><div><span class="kicker">CHANGE REVIEW</span><h2 id="panelTitle">No text selected</h2></div><button id="closePanel" class="icon-btn" aria-label="Close">×</button></div>
+        <div id="emptyState" class="empty-state"><div class="cursor-art">T</div><p>Click a text block in the PDF to start editing.</p></div>
+        <div id="editForm" hidden>
+          <label>Original</label>
+          <div id="originalText" class="diff old"></div>
+          <label for="replacementText">Replacement</label>
+          <textarea id="replacementText" rows="5"></textarea>
+          <div id="fitNotice" class="fit-notice">Fits inside the original area</div>
+          <div class="diff-preview"><span class="removed" id="diffOld"></span><span class="added" id="diffNew"></span></div>
+          <button id="applyBtn" class="primary full">Apply change</button>
+          <button id="cancelBtn" class="ghost full">Cancel</button>
+        </div>
+        <div class="change-history">
+          <div class="side-title"><span>Changes</span><span id="changeCount">0</span></div>
+          <div id="changeList"><p class="muted">Accepted changes will appear here.</p></div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status"></div>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
