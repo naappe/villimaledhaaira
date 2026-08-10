@@ -96,6 +96,25 @@
           <div class="side-title"><span>Changes</span><span id="changeCount">0</span></div>
           <div id="changeList"><p class="muted">Accepted changes will appear here.</p></div>
         </div>
+        <section class="proof-canvas-panel">
+          <div class="proof-title"><div><span class="kicker">PROOF CANVAS</span><h3>Layers & verification</h3></div><span class="proof-badge">LOCAL</span></div>
+          <div id="proofViews" class="proof-views">
+            <button data-view="original">Original</button><button data-view="edited" class="active">Edited</button>
+            <button data-view="difference">Difference</button><button data-view="verification">Verify</button>
+          </div>
+          <div id="proofLayerList" class="proof-layer-list"></div>
+          <div class="proof-hashes">
+            <label>Original SHA-256</label><code id="originalHash">Waiting for PDF</code>
+            <label>Last exported SHA-256</label><code id="exportHash">Download edited PDF first</code>
+          </div>
+          <button id="downloadProofReceipt" class="ghost full" disabled>Download edit receipt</button>
+          <div class="verify-package">
+            <span>Verify an exported package</span>
+            <label class="file-action">Choose receipt<input id="verifyReceiptInput" type="file" accept=".json,application/json" hidden></label>
+            <label class="file-action">Choose edited PDF<input id="verifyPdfInput" type="file" accept="application/pdf" hidden></label>
+            <div id="verificationResult" class="verification-result"></div>
+          </div>
+        </section>
       </aside>
     </section>
 
