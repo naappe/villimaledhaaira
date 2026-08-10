@@ -14,6 +14,7 @@
     <div class="top-actions">
       <button id="undoBtn" class="ghost" disabled>Undo</button>
       <button id="newBtn" class="ghost" hidden>New PDF</button>
+      <button id="wordModeBtn" class="ghost" hidden>Word Mode</button>
       <button id="downloadBtn" class="primary" disabled>Download PDF</button>
     </div>
   </header>
@@ -75,12 +76,49 @@
         </div>
       </aside>
     </section>
+
+    <section id="wordEditor" class="word-editor" hidden>
+      <aside class="word-original">
+        <div class="word-pane-head"><div><span class="kicker">ORIGINAL</span><h2>PDF reference</h2></div></div>
+        <div id="wordOriginalPages" class="word-original-pages"></div>
+      </aside>
+      <section class="word-compose">
+        <div class="word-toolbar" role="toolbar" aria-label="Document formatting">
+          <select id="blockStyle" aria-label="Block type">
+            <option value="paragraph">Paragraph</option><option value="heading">Heading</option>
+            <option value="list">List</option><option value="header">Header</option><option value="footer">Footer</option>
+          </select>
+          <button data-command="bold" title="Bold"><b>B</b></button>
+          <button data-command="italic" title="Italic"><i>I</i></button>
+          <button data-command="underline" title="Underline"><u>U</u></button>
+          <span class="tool-separator"></span>
+          <button data-command="justifyLeft" title="Align left">≡</button>
+          <button data-command="justifyCenter" title="Align center">≣</button>
+          <button data-command="insertUnorderedList" title="Bullet list">• List</button>
+          <button id="addPageBreak" title="Insert page break">Page break</button>
+        </div>
+        <div class="document-stage">
+          <article id="wordDocument" class="word-document" aria-label="Editable Word document"></article>
+        </div>
+      </section>
+      <aside class="word-inspector">
+        <div class="panel-head"><div><span class="kicker">WORD WORKSPACE</span><h2>Document structure</h2></div><button id="backToPdf" class="icon-btn" aria-label="Return to PDF mode">×</button></div>
+        <p class="inspector-help">Click a block to classify, format, move, or edit it.</p>
+        <div class="structure-actions">
+          <button id="moveBlockUp" class="ghost">Move up</button><button id="moveBlockDown" class="ghost">Move down</button>
+        </div>
+        <div id="structureList" class="structure-list"></div>
+        <div id="conversionWarnings" class="conversion-warnings"></div>
+        <button id="exportDocx" class="primary full">Download Word (.docx)</button>
+      </aside>
+    </section>
   </main>
 
   <div id="toast" class="toast" role="status"></div>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
