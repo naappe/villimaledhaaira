@@ -62,6 +62,20 @@
           <button id="enhanceTextBtn" class="enhance-btn" type="button">Enhance scan text</button>
           <div class="zoom"><button id="zoomOut" aria-label="Zoom out">−</button><span id="zoomLabel">100%</span><button id="zoomIn" aria-label="Zoom in">+</button></div>
         </div>
+        <div id="designToolbar" class="design-toolbar" aria-label="PDF design tools">
+          <button data-tool="pdf-text" class="active">Edit PDF text</button>
+          <button data-tool="select">Select objects</button>
+          <button data-tool="text">Text box</button>
+          <button data-tool="highlight">Highlight</button>
+          <button data-tool="draw">Draw</button>
+          <button id="insertImageBtn">Image</button>
+          <button id="signatureBtn">Signature</button>
+          <span class="tool-spacer"></span>
+          <button id="visualUndoBtn" disabled>Undo</button>
+          <button id="visualRedoBtn" disabled>Redo</button>
+          <button id="deleteObjectBtn" class="danger-tool" disabled>Delete</button>
+          <input id="insertImageInput" type="file" accept="image/png,image/jpeg" hidden>
+        </div>
         <div id="pages" class="pages"></div>
       </section>
 
@@ -131,6 +145,13 @@
     </section>
   </main>
 
+  <dialog id="signatureDialog" class="signature-dialog">
+    <form method="dialog">
+      <div class="signature-head"><div><span class="kicker">SIGNATURE</span><h2>Draw your signature</h2></div><button value="cancel" class="icon-btn">×</button></div>
+      <canvas id="signatureCanvas" width="640" height="220"></canvas>
+      <div class="signature-actions"><button type="button" id="clearSignature" class="ghost">Clear</button><button value="cancel" class="ghost">Cancel</button><button type="button" id="useSignature" class="primary">Place signature</button></div>
+    </form>
+  </dialog>
   <div id="toast" class="toast" role="status"></div>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
