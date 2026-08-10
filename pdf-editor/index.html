@@ -46,6 +46,12 @@
           <div><strong id="fileName">Document.pdf</strong><span id="fileMeta">Loading…</span></div>
         </div>
         <div class="side-title"><span>Pages</span><span id="pageCount"></span></div>
+        <div class="page-tools">
+          <button id="addPageBtn" class="ghost">＋ Add page</button>
+          <button id="mergePdfBtn" class="ghost">⇄ Merge PDF</button>
+          <button id="deletePageBtn" class="danger-btn">Delete selected</button>
+          <input id="mergePdfInput" type="file" accept="application/pdf" multiple hidden>
+        </div>
         <div id="thumbnails" class="thumbnails"></div>
       </aside>
 
@@ -109,7 +115,9 @@
         </div>
         <div id="structureList" class="structure-list"></div>
         <div id="conversionWarnings" class="conversion-warnings"></div>
-        <button id="exportDocx" class="primary full">Download Word (.docx)</button>
+        <button id="applyWordToPdf" class="primary full">Apply edits back to PDF</button>
+        <button id="exportWordPdf" class="ghost full">Download edited PDF</button>
+        <button id="exportDocx" class="ghost full">Download Word (.docx)</button>
       </aside>
     </section>
   </main>
@@ -118,6 +126,7 @@
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
   <script src="./app.js"></script>
 </body>
